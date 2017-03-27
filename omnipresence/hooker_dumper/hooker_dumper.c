@@ -1,3 +1,10 @@
+/*
+небольшая утилитка, позволяющая забыть о мучениях с хуками... ну, на время
+выводит в stdout в JSON-е все события нажатия клавиш и смены foreground окон, по одному JSON-объекту на строчке
+
+hooker - шлюха, dumper - самосвал; so be this util called шмаровоз!
+*/
+
 #define _WIN32_WINNT 0x0500
 #define WINVER 0x0501
 #define _POSIX_C_SOURCE 200112L
@@ -21,9 +28,11 @@ void printLastError(char* action){
 		
 	if(messageBuffer){
 		fprintf(stderr, "Failed to %s: error %s\n", action, messageBuffer);
+		fflush(stderr);
 		LocalFree(messageBuffer);
 	} else {
 		fprintf(stderr, "Failed to %s: unknown error, code %i\n", action, errorCode);
+		fflush(stderr);
 	}
 }
 
@@ -32,7 +41,7 @@ char* jsonEscapeString(char* raw){
 	int newLen = rawLen;
 	int i, j = 0;
 	for(i = 0; i < rawLen; i++){
-		if(raw[i] == '"') newLen++;
+		if(raw[i] == '"' || raw[i] == '\\') newLen++;
 	}
 	
 	char* result = malloc(sizeof(char) * (newLen + 1));
@@ -40,6 +49,9 @@ char* jsonEscapeString(char* raw){
 		if(raw[i] == '"'){
 			result[j++] = '\\';
 			result[j++] = '"';
+		} else if(raw[i] == '\\'){
+			result[j++] = '\\';
+			result[j++] = '\\';
 		} else {
 			result[j++] = raw[i];
 		}
@@ -159,8 +171,11 @@ LRESULT CALLBACK onKeyboardEvent(int code, WPARAM wParam, LPARAM lParam) {
 		BOOL isExtended = p->flags & LLKHF_EXTENDED;
 		BOOL isInjected = p->flags & LLKHF_INJECTED;
 		char* mods = getSpecialKeyJson(isExtended, isInjected);
-		char* window = winShortDescriptionToJson(currentWindow);
+		WinShortDescription* currentWin = describeForegroundWindow();
+		char* window = winShortDescriptionToJson(currentWin);
+		free(currentWin);
 		printf("{\"type\": \"key\", \"direction\": \"%s\", \"mods\": %s, \"vk\": %li, \"sc\": %li, \"window\": %s}\n", isDown? "down": "up", mods, p->vkCode, p->scanCode, window);
+		fflush(stdout);
 		free(mods);
 		free(window);
 	}
@@ -181,6 +196,7 @@ void onForegroundWindowChanged(HWINEVENTHOOK hook, DWORD event, HWND hwnd,
 	char* newDescJson = winShortDescriptionToJson(currentWindow);
 	
 	printf("{\"type\": \"foreground_window_change\", \"from\": %s, \"to\": %s}\n", oldDescJson, newDescJson);
+	fflush(stdout);
 	
 	free(oldDescJson);
 	free(newDescJson);
@@ -202,12 +218,12 @@ int main(int argv, char** argc){
 		printLastError("install keyboard hook");
 		return 1;
 	}
-	
+	/*
 	if(!installWindowChangeHook()){
 		printLastError("install window change hook");
 		return 1;
 	}
-	
+	*/
 	currentWindow = describeForegroundWindow();
 	while(GetMessage(&msg, 0, 0, 0)); // nothing to do with them; just infinite loop
 	
