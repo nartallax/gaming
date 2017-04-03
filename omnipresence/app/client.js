@@ -7,7 +7,8 @@ pkg('op.client', () => {
 		winapi = pkg('win.api'),
 		cp = pkg.external('child_process'),
 		Event = pkg('util.event'),
-		affinityStrategy = pkg('op.core.selection.strategy');
+		affinityStrategy = pkg('op.core.selection.strategy'),
+		Keylogger = pkg('op.keylogger');
 	
 	var cc = pkg('charconfig');
 	
@@ -18,17 +19,17 @@ pkg('op.client', () => {
 		this.height = null;
 		this.char = null;
 		
-		this.onKey = new Event();
+		this.keyHandlers = {};
 	};
 	
 	var clientList = {}, activationInterval;
-	var addToClientList = (k, v) => {
-		clientList[k] = v;
+	var addToClientList = cl => {
+		clientList[cl.win.hwnd] = cl;
 		activationInterval || 
 			(activationInterval = setInterval(() => Object.keys(clientList).forEach(id => clientList[id].activate()), config.windowActivationInterval));
 	}
-	var removeFromClientList = k => {
-		delete clientList[k];
+	var removeFromClientList = cl => {
+		delete clientList[cl.win.hwnd];
 		(Object.keys(clientList).length === 0 && activationInterval) && clearInterval(activationInterval);
 	}
 	var getOccupiedCores = (procCount) => {
@@ -73,20 +74,27 @@ pkg('op.client', () => {
 	Client.getDefaultKeylogger = () => defaultKeylogger;
 	Client.setDefaultKeylogger = kl => {
 		defaultKeylogger = kl;
-		kl.onForegroundWindow(w => {
-			clientList[w.from.pid] && setTimeout(() => clientList[w.from.pid] && clientList[w.from.pid].activate(), config.windowActivationLag);
+		
+		kl.onKeyPress(data => {
+			if(!data.line || data.direction !== 'down' || !(data.hwnd in clientList)) return;
+			var cl = clientList[data.hwnd];
+			
+			if(!(data.line in cl.keyHandlers)) return;
+			var handler = cl.keyHandlers[data.line];
+			
+			handler.prevent && (data.prevent = true);
+			setImmediate(() => handler.call(data));
 		});
 		
-		kl.onKey(k => {
-			k.direction === 'down' && k.window && k.window.pid in clientList && clientList[k.window.pid].onKey.fire(k);
-		});
 	}
+	Client.assureHasKeylogger = () => defaultKeylogger || Client.setDefaultKeylogger(new Keylogger().start());
 	
 	var createNewWindow = (binPath, cb) => {
 		var proc = cp.spawn(binPath);
 		findWin(proc.pid, win => cb(proc, win));
 	}
 	Client.startFor = (clientName, accountName, cb) => {
+		Client.assureHasKeylogger();
 		createNewWindow(cc.clients[clientName].binary, (proc, win) => {
 			var cl = new Client(proc, win, cc.clients[clientName]);
 			cl.loginFor(cc.characters[accountName], () => cb(cl));
@@ -114,8 +122,33 @@ pkg('op.client', () => {
 	}
 	
 	Client.prototype = {
+		onKey: function(line, handler, args){
+			if(!handler){
+				delete this.keyHandlers[line];
+			} else {
+				this.keyHandlers[line] = {prevent: args.noPrevent? false: true, call: handler};
+			}
+		},
+		
+		setHotkeys: function(map){
+			this.keyHandlers = {};
+			Object.keys(map).forEach(line => {
+				var v = map[line], handler, args;
+				if(typeof(v) === 'function'){
+					handler = v;
+					args = {};
+				} else {
+					handler = v.handler;
+					args = v;
+				}
+				this.onKey(line, handler, args);
+			})
+		},
+		
 		close: function(){
-			removeFromClientList(this.proc.pid);
+			removeFromClientList(this);
+			this.closed = true;
+			this.inParty = false;
 			this.proc.kill();
 		},
 		
@@ -132,27 +165,39 @@ pkg('op.client', () => {
 			});
 		},
 		
+		reloginIfClosed: function(cb){ this.closed? this.relogin(cb): setImmediate(cb); },
+		
 		setProcWin: function(proc, win){
+			this.closed = false;
 			this.proc = proc;
 			this.win = win;
-			addToClientList(this.proc.pid, this);
-			this.proc.on('close', () => this.close());
+			addToClientList(this);
+			this.proc.on('close', () => {
+				log('Window of ' + (this.char? this.char.name: 'not logged character') + ' is closed.');
+				this.close()
+			});
 			this.normalizeWindowPos();
 			this.processorCore = null;
 			this.selectAndSetAffinity();
 		},
 		
-		waitColorChange: function(x, y, cb, afterRelogCb, baseColor, additionalDelay, maxWaitTime, onFailure){
+		waitColorChange: function(x, y, cb, afterRelogCb, baseColor, expectedColor, additionalDelay, maxWaitTime, onFailure){
 			additionalDelay = additionalDelay || config.minorInterfaceLag;
 			maxWaitTime = maxWaitTime || config.loginStepDelay;
 			onFailure = onFailure || (() => this.relogin(afterRelogCb));
 			var startTime = time.milliseconds();
 			
 			var rgb = typeof(baseColor) === 'number'? baseColor: this.win.colorAt(x, y).rgb;
+			var isExpectingParticularColor = typeof(expectedColor) === 'number';
+			
+			var complete = () => additionalDelay? setTimeout(() => cb(), additionalDelay): cb();
 			
 			var check = () => {
 				var curCol = this.win.colorAt(x, y).rgb;
-				if(curCol !== rgb) return additionalDelay? setTimeout(() => cb(curCol), additionalDelay): cb(curCol);
+				
+				//console.log('At ' + x + ',' + y + ', got color 0x' + curCol.toString(16));
+				
+				if((isExpectingParticularColor && curCol === expectedColor) || (!isExpectingParticularColor && curCol !== rgb)) return complete();
 				
 				if(time.milliseconds() - startTime > maxWaitTime){
 					return onFailure();
@@ -178,14 +223,21 @@ pkg('op.client', () => {
 			var occupied = getOccupiedCores(max + 1);
 			
 			var selectedCore;
+			
 			if(typeof(this.clientDescription.affinity) === 'number'){
-				selectedCore = this.clientDescription.affinity;
+				this.clientDescription.affinity = [this.clientDescription.affinity];
+			}
+			
+			if(Array.isArray(this.clientDescription.affinity)){
+				selectedCore = this.clientDescription.affinity.map(x => [x, occupied[x].length]).sort((a, b) => a[1] - b[1])[0][0];
 			} else {
 				if(!(this.clientDescription.affinity in affinityStrategy)){
 					throw new Error('Affinity selection strategy "' + this.clientDescription.affinity + '" not found.');
 				}
 				selectedCore = affinityStrategy[this.clientDescription.affinity](avail, occupied);
 			}
+			
+			//log('Selected core for new client: ' + selectedCore);
 			
 			this.win.setAffinity([selectedCore]);
 			this.processorCore = selectedCore;
@@ -197,25 +249,44 @@ pkg('op.client', () => {
 				width = this.width = rect.right - rect.left,
 				height = this.height = rect.bottom - rect.top;
 			
-			this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, color => { // black screen -> login
+			this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, () => { // black screen -> login
 				
 				this.win.sendKeyString(this.char.login);
 				setTimeout(() => {
-					this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, color => { // login -> rules
-						this.waitColorChange(~~(width / 2) - 40, ~~(height / 2) + 170, color => { // rules -> server selection
-							this.waitColorChange(~~(width / 2), ~~(height / 2) + 10, color => { // server selection -> character selection
-								this.waitColorChange(~~(width / 2), height - 80, color => { // character selection -> splash screen
-									this.waitColorChange(~~(width / 2), height - 80, color => { // splash screen -> game
+					this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, () => { // login -> rules
+						this.waitColorChange(~~(width / 2) - 40, ~~(height / 2) + 170, () => { // rules -> server selection
+							this.waitColorChange(~~(width / 2), ~~(height / 2) + 10, () => { // server selection -> character selection
+								this.waitColorChange(~~(width / 2), height - 80, () => { // character selection -> splash screen
+									this.waitColorChange(10, 40, () => { // splash screen -> game
 										this.clientDescription.simpleGraph && this.win.sendKeyString("{home}");
 										cb(this);
-									}, cb);
+									}, cb, null, 0x583f31);
 								}, cb);
-								this.win.sendKeyString('{enter}');
+								
+								setTimeout(() => this.win.sendKeyString('{enter}'), config.minorInterfaceLag);
 							}, cb);
 							this.win.sendKeyString('{enter}');
 						}, cb);
 						this.win.sendKeyString('{enter}');
 					}, cb);
+					
+					/*
+					var done = false;
+					var interval = setInterval(() => {
+						done && clearInterval(interval);
+						this.win.sendKeyString('{enter}');
+					}, 500);
+					
+					this.waitColorChange(10, 40, () => { // splash screen -> game
+						done = true;
+						this.clientDescription.simpleGraph && this.win.sendKeyString("{enter}#!{enter}{home}");
+						cb(this);
+					}, cb, null, 0x583f31, null, null, (() => {
+						done = true;
+						this.relogin(cb)
+					}));
+					*/
+					
 					this.win.sendKeyString('{tab}' + this.char.password + '{enter}');
 				}, config.minorInterfaceLag);
 				
@@ -236,10 +307,16 @@ pkg('op.client', () => {
 		acceptParty: function(cb){
 			this.bringToFront(() => {
 				this.win.click(440, this.height - 50, false, config.minorInterfaceLag, () => {
-					this.win.click(440, this.height - 30, false, config.minorInterfaceLag, cb);
+					this.win.click(440, this.height - 30, false, config.minorInterfaceLag, () => {
+						this.inParty = true;
+						cb && cb();
+					});
 				});
-				
 			});
+		},
+		leaveParty: function(cb){
+			this.chat('/leave');
+			this.inParty = false;
 		},
 		partyWith: function(otherClient, cb){
 			this.chat('/invite ' + otherClient.char.name);
@@ -249,7 +326,7 @@ pkg('op.client', () => {
 			var i = 0;
 			var next = () => {
 				var cl = clients[i++];
-				if(!cl) return cb();
+				if(!cl) return this.bringToFront(cb);
 				this.partyWith(cl, next);
 			}
 			

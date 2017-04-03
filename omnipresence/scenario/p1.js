@@ -1,65 +1,55 @@
 pkg('scenario.p1', () => {
 
 	var Client = pkg('op.client'),
-		Window = pkg('win.window'),
-		log = pkg('util.log'),
-		winapi = pkg('win.api'),
-		config = pkg('config')
+		log = pkg('util.log');
 		
 	return () => {
-		
-		Client.startMany([['p1tank', 'main'], ['p1se', 'mundane'], ['p1bd', 'mundane'], 'p1nuker1', 'p1nuker2', 'p1nuker3', 'p1nuker4', 'p1nuker5', 'p1nuker6'], clients => {
-			log('started!');
-			
+		Client.startMany([['p1tank', 'main']/*, ['p1se', 'mundane'], ['p1bd', 'mundane']*/, 'p1nuker1', 'p1nuker2', 'p1nuker3', 'p1nuker4', 'p1nuker5', 'p1nuker6'], clients => {
 			var head = clients.filter(x => x.char.roles.filter(x => x === 'tank').length > 0)[0],
 				supports = clients.filter(x => x.char.roles.filter(x => x === 'buffer').length > 0),
+				healers = supports.filter(x => x.char.roles.filter(x => x === 'healer').length > 0),
 				nukers = clients.filter(x => x.char.roles.filter(x => x === 'nuker').length > 0),
 				notHead = clients.filter(x => x !== head);
 			
+			var chatReady = () => notHead.forEach(x => x.chat('#ready'));
+			
+			head.bringToFront(() => chatReady);
+			
 			var goParty = cb => {
-				head.partyWithMany(notHead, () => {
-					head.bringToFront(() => {
-						notHead.forEach(x => x.chat('#ready'))
-						cb();
-					})
+				head.partyWithMany(notHead.filter(x => !x.inParty), () => {
+					chatReady();
+					cb();
 				})
 			}
 			
-			goParty(() => {
-				var nukerRoundRobin = 0;
+			var alreadyRelogging = false;
+			var relogDeadWindows = cb => {
+				if(alreadyRelogging) return cb(false);
+				alreadyRelogging = true;
+				log('Relogging closed windows.');
+				var i = 0;
+				var next = () => {
+					var cl = notHead[i++];
+					if(!cl) return ((alreadyRelogging = false), cb());
 					
-				head.onKey(k => {
-					switch(k.vk){
-						case 192: // ~
-							notHead.forEach(x => x.chat('#ready'));
-							break;
-						case 49: // 1
-							var nuker = nukers[nukerRoundRobin = (nukerRoundRobin + 1) % nukers.length];
-							nuker.useHotkey(1);
-							break;
-						case 50: // 2
-							notHead.forEach(cl => cl.useHotkey(2));
-							break;
-						case 51: // 3
-							nukers.forEach(cl => cl.useHotkey(1));
-							break;
-						case 48: // 0
-							notHead.forEach(cl => cl.useHotkey(10));
-							break;
-						case 189: // -
-							notHead.forEach(cl => cl.useHotkey(11));
-							break;
-						case 187: // =
-							notHead.forEach(x => {
-								x.target(head.char.name);
-								x.evaluate();
-							})
-							break;
-						case 220: // |
-							goParty(() => log('Repartied.'));
-							break;
-					}
-				});
+					cl.reloginIfClosed(next);
+				}
+				
+				next();
+			}
+			
+			var nukerRR = 0, healerRR = 0;
+			head.setHotkeys({
+				'`': () => nukers.forEach(cl => cl.useHotkey(1)),
+				'1': () => nukers[nukerRR = (nukerRR + 1) % nukers.length].useHotkey(1),
+				'2': () => notHead.forEach(cl => cl.useHotkey(2)),
+				'3': () => healers[healerRR = (healerRR + 1) % healers.length].useHotkey(1),
+				'0': { handler: () => notHead.forEach(cl => cl.useHotkey(10)), noPrevent: true},
+				'-': { handler: () => notHead.forEach(cl => cl.useHotkey(11)), noPrevent: true},
+				'=': () => notHead.forEach(x => x.evaluate()),
+				'f9':() => goParty(() => log('Repartied.')),
+				'f10': () => chatReady(),
+				'f11': () => relogDeadWindows(() => log('Done relogging.'))
 			});
 		});
 	}

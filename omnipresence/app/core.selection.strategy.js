@@ -46,7 +46,15 @@ pkg('op.core.selection.strategy', () => {
 			} else {
 				var takenCores = avail.filter(x => occupied[x].filter(x => x === 'groupSharedCore').length > 0);
 				if(takenCores.length > 0){
-					return takenCores[0];
+					var lowestOcuppiedIndex = 0, lowestOccupiedCount = occupied[takenCores[i]].filter(x => x === 'groupSharedCore').length;
+					for(var i = 1; i < takenCores.length; i++){
+						var count = occupied[takenCores[i]].filter(x => x === 'groupSharedCore').length;
+						if(count < lowestOccupiedCount){
+							lowestOccupiedCount = count;
+							lowestOcuppiedIndex = i;
+						}
+					}
+					return takenCores[lowestOcuppiedIndex];
 				} else {
 					log('Warning: could not find suitable processor core for client (at groupSharedCore strategy). Will use occupied core.');
 					return avail[0];
