@@ -10,21 +10,28 @@ pkg('charconfig', () => {
 		defaultSimpleGraph: true,
 		
 		clients: {
-			main: { binary: "C:\\game\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0 },
-			secondary: { binary: "C:\\game\\L2secondary\\system\\L2.exe", isDefault: true, simpleGraph: true, affinity: [2, 4, 6] },
-			mundane: { binary: "C:\\game\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: 0 }
+			main: { binary: "G:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
+			mainOnSeparateDisk: { binary: "E:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
+			secondary: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", isDefault: true, simpleGraph: true, affinity: [2, 4, 6] },
+			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [3, 5, 7] }
 		},
 		
 		characters: {
-			p1tank: { login: 'nartallaxp1t', password: passwords.a, name: 'Thozar', roles: ['tank'], profession: 'sk'},
-			p1nuker1: { login: 'nartallaxp1n1', password: passwords.a, name: 'Xoxx', roles: ['nuker'], profession: 'sh'},
-			p1nuker2: { login: 'nartallaxp1n2', password: passwords.a, name: 'Zorg', roles: ['nuker'], profession: 'sh'},
-			p1nuker3: { login: 'nartallaxp1n3', password: passwords.a, name: 'Dart', roles: ['nuker'], profession: 'sh'},
-			p1nuker4: { login: 'nartallaxp1n4', password: passwords.a, name: 'Quex', roles: ['nuker'], profession: 'sh'},
-			p1nuker5: { login: 'nartallaxp1n5', password: passwords.a, name: 'Ruxx', roles: ['nuker'], profession: 'sh'},
-			p1nuker6: { login: 'nartallaxp1n6', password: passwords.a, name: 'Torn', roles: ['nuker'], profession: 'sh'},
-			p1se: { login: 'nartallaxp1se', password: passwords.a, name: 'Azuria', roles: ['buffer', 'healer'], profession: 'se'},
-			p1bd: { login: 'nartallaxp1bd', password: passwords.a, name: 'Eanorte', roles: ['buffer', 'melee'], profession: 'bd'}
+			mainSpoiler: { login: 'nartallaxsp', password: passwords.a, name: 'BloodGarnet', roles: ['melee'], profession: 'sp' },
+			mainCrafter: { login: 'nartallaxcr', password: passwords.a, name: 'SturdyOnyx', roles: ['melee'], profession: 'cr' },
+			mainSe: { login: 'nartallaxse', password: passwords.a, name: 'WildSapphire', roles: ['buffer', 'healer'], profession: 'se' },
+			mainEe: { login: 'nartallaxee', password: passwords.a, name: 'PureDiamond', roles: ['buffer', 'healer'], profession: 'ee' },
+			mainPp: { login: 'nartallaxpp', password: passwords.a, name: 'BlazingRuby', roles: ['buffer', 'healer'], profession: 'pp' },
+			
+			p1tank: { login: 'nartallaxp1tk', password: passwords.a, name: 'Thozar', roles: ['melee', 'tank'], profession: 'sk' },
+			p1se1: { login: 'nartallaxp1se1', password: passwords.a, name: 'Aonerta', roles: ['buffer', 'healer'], profession: 'se' },
+			p1se2: { login: 'nartallaxp1se2', password: passwords.a, name: 'Eanorta', roles: ['buffer', 'healer'], profession: 'se' },
+			p1nuker1: { login: 'nartallaxp1sh1', password: passwords.a, name: 'Rexx', roles: ['nuker'], profession: 'sh' },
+			p1nuker2: { login: 'nartallaxp1sh2', password: passwords.a, name: 'Zaxx', roles: ['nuker'], profession: 'sh' },
+			p1nuker3: { login: 'nartallaxp1sh3', password: passwords.a, name: 'Toxx', roles: ['nuker'], profession: 'sh' },
+			p1nuker4: { login: 'nartallaxp1sh4', password: passwords.a, name: 'Wexx', roles: ['nuker'], profession: 'sh' },
+			p1nuker5: { login: 'nartallaxp1sh5', password: passwords.a, name: 'Noxx', roles: ['nuker'], profession: 'sh' },
+			p1nuker6: { login: 'nartallaxp1sh6', password: passwords.a, name: 'Quxx', roles: ['nuker'], profession: 'sh' }
 		}
 		
 	};

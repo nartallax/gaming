@@ -20,8 +20,8 @@ pkg('op.keylogger', () => {
 		
 		var message = new winapi.msg();
 		winapi.PeekMessageW(message.ref(), 0, 0, 0, 1);
-		setInterval(() => { while(winapi.PeekMessageW(message.ref(), 0, 0, 0, 1)); }, 10)
-			.unref();
+		
+		setInterval(() => { while(winapi.PeekMessageW(message.ref(), 0, 0, 0, 1)); }, 10).unref();
 	}
 	
 	var ByteArray = refArray('uint8');
@@ -99,7 +99,7 @@ pkg('op.keylogger', () => {
 			return this;
 		},
 		stop: function(){ 
-			this.proc.kill(); 
+			//TODO: actually revert effect of SetWindowsHookExW here
 			return this;
 		}
 	};

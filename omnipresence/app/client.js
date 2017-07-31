@@ -25,9 +25,16 @@ pkg('op.client', () => {
 	var clientList = {}, activationInterval;
 	var addToClientList = cl => {
 		clientList[cl.win.hwnd] = cl;
-		activationInterval || 
-			(activationInterval = setInterval(() => Object.keys(clientList).forEach(id => clientList[id].activate()), config.windowActivationInterval));
+		//log("New window added to client list, new list size = " + Object.keys(clientList).length);
 	}
+	Client.setupAutoActivation = () => {
+		if(!activationInterval){
+			activationInterval = setInterval(Client.activateAll, config.windowActivationInterval);
+			
+			//log("Activation interval set up.");
+		}
+	}
+	Client.activateAll = () => Object.keys(clientList).forEach(id => clientList[id].activate())
 	var removeFromClientList = cl => {
 		delete clientList[cl.win.hwnd];
 		(Object.keys(clientList).length === 0 && activationInterval) && clearInterval(activationInterval);
@@ -143,6 +150,8 @@ pkg('op.client', () => {
 				}
 				this.onKey(line, handler, args);
 			})
+			
+			return this;
 		},
 		
 		close: function(){
@@ -256,36 +265,44 @@ pkg('op.client', () => {
 					this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, () => { // login -> rules
 						this.waitColorChange(~~(width / 2) - 40, ~~(height / 2) + 170, () => { // rules -> server selection
 							this.waitColorChange(~~(width / 2), ~~(height / 2) + 10, () => { // server selection -> character selection
+								var clickInterval = null, clicksLeft = 3;
+							
 								this.waitColorChange(~~(width / 2), height - 80, () => { // character selection -> splash screen
+								
+									if(clickInterval){
+										clearInterval(clickInterval);
+									}
+									clickInterval = "stop";
+									
 									this.waitColorChange(10, 40, () => { // splash screen -> game
 										this.clientDescription.simpleGraph && this.win.sendKeyString("{home}");
 										cb(this);
 									}, cb, null, 0x583f31);
 								}, cb);
 								
-								setTimeout(() => this.win.sendKeyString('{enter}'), config.minorInterfaceLag);
+								setTimeout(() => {
+									this.win.sendKeyString('{enter}');
+									setTimeout(() => {
+										// repeated clicks at "start" button
+										// that works better than just sending {enter} sometimes
+										if(!clickInterval){
+											clickInterval = setInterval(() => {
+												if(--clicksLeft <= 0){
+													clearInterval(clickInterval);
+													clickInterval = 0;
+												}
+												
+												this.win.click(width/2, height - 85, false, config.minorInterfaceLag, () => {});
+											}, config.minorInterfaceLag * 2);
+										}
+										
+									}, config.minorInterfaceLag * 10);
+								}, config.minorInterfaceLag * 3);
 							}, cb);
 							this.win.sendKeyString('{enter}');
 						}, cb);
 						this.win.sendKeyString('{enter}');
 					}, cb);
-					
-					/*
-					var done = false;
-					var interval = setInterval(() => {
-						done && clearInterval(interval);
-						this.win.sendKeyString('{enter}');
-					}, 500);
-					
-					this.waitColorChange(10, 40, () => { // splash screen -> game
-						done = true;
-						this.clientDescription.simpleGraph && this.win.sendKeyString("{enter}#!{enter}{home}");
-						cb(this);
-					}, cb, null, 0x583f31, null, null, (() => {
-						done = true;
-						this.relogin(cb)
-					}));
-					*/
 					
 					this.win.sendKeyString('{tab}' + this.char.password + '{enter}');
 				}, config.minorInterfaceLag);
@@ -302,14 +319,17 @@ pkg('op.client', () => {
 	
 		chat: function(str){ 
 			log(this.char.name + ': ' + str);
-			this.win.sendKeyString('{enter}' + str + '{enter}');
+			this.win.sendKeyString('{enter}{back}{back}' + str + '{enter}');
 		},
 		acceptParty: function(cb){
 			this.bringToFront(() => {
 				this.win.click(440, this.height - 50, false, config.minorInterfaceLag, () => {
 					this.win.click(440, this.height - 30, false, config.minorInterfaceLag, () => {
-						this.inParty = true;
-						cb && cb();
+						// sometimes we need to click twice because of strange interface bug
+						this.win.click(440, this.height - 30, false, config.minorInterfaceLag, () => {
+							this.inParty = true;
+							cb && cb();
+						});
 					});
 				});
 			});
@@ -342,6 +362,9 @@ pkg('op.client', () => {
 			}
 			
 			this.win.sendKeyPress(vk, true); this.win.sendKeyPress(vk, false);
+		},
+		cancelCurrentAction: function(){
+			this.win.sendKeyString('{escape}');
 		},
 		
 		target: function(targ){ this.chat('/target ' + targ); },

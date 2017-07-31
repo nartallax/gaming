@@ -4,11 +4,7 @@ require('../../javascript-common/libs/meta/addict.js')
 	.main(() => {
 		
 		var log = pkg('util.log'),
-			CLI = pkg('util.cli'),
-			winapi = pkg('win.api'),
-			config = pkg('config'),
-			Window = pkg('win.window'),
-			Client = pkg('op.client');
+			CLI = pkg('util.cli');
 		
 		var cli = new CLI({
 			scenario: { alias: 's', description: 'Determines the scenario package name to execute.', type: 'string'},
