@@ -13,7 +13,7 @@ pkg('charconfig', () => {
 			main: { binary: "G:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
 			mainOnSeparateDisk: { binary: "E:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
 			secondary: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", isDefault: true, simpleGraph: true, affinity: [2, 4, 6] },
-			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [3, 5, 7] }
+			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [2, 4, 6] }
 		},
 		
 		characters: {
