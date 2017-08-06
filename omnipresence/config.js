@@ -10,6 +10,8 @@ pkg('config', () => {
 		minorInterfaceLag: 250,
 		windowSwitchLag: 2500,
 		colorCheckInterval: 100,
-		loginStepDelay: 10000
+		loginStepDelay: 15000,
+		
+		netPort: 44944
 	}
 });

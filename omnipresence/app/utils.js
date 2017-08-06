@@ -12,11 +12,11 @@ pkg('op.utils', () => {
 		this.twinks = null;
 	}
 	
-	Utils.startMany = function(clientDescs, cb){
-		Client.startMany(clientDescs, clients => {
+	Utils.start = function(clientDescs, cb, useSequental){
+		Client.start(clientDescs, clients => {
 			var u = new Utils(clients);
 			cb(u, clients);
-		});
+		}, useSequental);
 	}
 	
 	Utils.prototype = {

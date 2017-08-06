@@ -5,7 +5,7 @@ pkg('op.cli', () => {
 	var CLI = function(handlers){
 		this.handlers = handlers;
 		this.rl = null;
-		this.prefix = Array(log.getPrefixLength() - 1).join('-') + '> ';
+		this.prefix = '';//Array(log.getPrefixLength() - 1).join('-') + '> ';
 		this.setup();
 	}
 	

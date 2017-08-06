@@ -9,11 +9,16 @@ pkg('charconfig', () => {
 		
 		defaultSimpleGraph: true,
 		
+		hosts: {
+			lesserLaptop: { ip: 'nartallax-ll', hostname: 'nartallax-ll', role: 'slave' },
+			mainLaptop: { ip: 'nartallax-w7', hostname: 'nartallax-w7', role: 'master' }
+		},
+		
 		clients: {
-			main: { binary: "G:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
-			mainOnSeparateDisk: { binary: "E:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true },
+			main: { binary: "G:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true},
 			secondary: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", isDefault: true, simpleGraph: true, affinity: [2, 4, 6] },
-			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [2, 4, 6] }
+			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [2, 4, 6] },
+			lesser: { binary: "C:\\game\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [0, 2], host: 'lesserLaptop' }
 		},
 		
 		characters: {

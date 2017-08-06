@@ -2,12 +2,13 @@
 require('../../javascript-common/libs/meta/addict.js')
 	.resolvers(['node', {'../../javascript-common/libs': '', './app': 'op', './': ''}])
 	.main(() => {
-		
 		var log = pkg('util.log'),
-			CLI = pkg('util.cli');
+			CLI = pkg('util.cli'),
+			net = pkg('op.net'),
+			Client = pkg('op.clients');
 		
 		var cli = new CLI({
-			scenario: { alias: 's', description: 'Determines the scenario package name to execute.', type: 'string'},
+			scenario: { alias: 's', description: 'Determines the scenario package name to execute.', type: 'string', default: ''},
 			help: { alias: 'h', description: 'Print usage information and exit.', type: 'boolean', isHelp: true}
 		});
 		
@@ -15,7 +16,16 @@ require('../../javascript-common/libs/meta/addict.js')
 		if(args.help){
 			cli.printHelp();
 		} else {
-			pkg('scenario.' + args.scenario)();
+			
+			if(!net.isMaster()){
+				log('Running as slave at node ' + net.getLocalHostname());
+			} else {
+				if(args.scenario === ''){
+					return log('Tried to run as master, but no scenario supplied! Use --scenario command line argument.');
+				}
+				pkg('scenario.' + args.scenario)();
+			}
+			
 		}
 		
 	});
