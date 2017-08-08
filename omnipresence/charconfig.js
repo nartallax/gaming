@@ -7,20 +7,37 @@ pkg('charconfig', () => {
 
 	var charconfig = {
 		
-		defaultSimpleGraph: true,
-		
+		// хосты - компьютеры, на которых выполняется эта программа
 		hosts: {
-			lesserLaptop: { ip: 'nartallax-ll', hostname: 'nartallax-ll', role: 'slave' },
-			mainLaptop: { ip: 'nartallax-w7', hostname: 'nartallax-w7', role: 'master' }
+			mainLaptop: { hostname: 'nartallax-w7', role: 'master' },
+			lesserLaptop: { hostname: 'nartallax-ll', role: 'slave' }
 		},
 		
+		// клиенты
+		// один клиент определяет множество настроек; знание этих настроек позволяет запустить клиент
+		// не забудьте отредактировать affinity, иначе случится что-нибудь плохое
+		// - например, все запущенные клиенты окажутся на одном ядре процессора и будут тормозить
 		clients: {
-			main: { binary: "G:\\_kill\\L2\\system\\L2.exe", simpleGraph: false, affinity: 0, isMain: true},
-			secondary: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", isDefault: true, simpleGraph: true, affinity: [2, 4, 6] },
-			mundane: { binary: "G:\\_kill\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [2, 4, 6] },
-			lesser: { binary: "C:\\game\\L2secondary\\system\\L2.exe", simpleGraph: true, affinity: [0, 2], host: 'lesserLaptop' }
+			main: { 
+				// главное окно, запускается на мастер-хосте
+				binary: "G:\\_kill\\L2\\system\\L2.exe", 
+				simpleGraph: false, affinity: 0, isMain: true
+			},
+			secondary: { 
+				// вспомогательное окно, запускается также на мастер-хосте, но с другими настройками (все порезано в минимум)
+				// также после запуска включится "упрощенная графика" - simpleGraph
+				binary: "G:\\_kill\\L2secondary\\system\\L2.exe", 
+				simpleGraph: true, affinity: [2, 4, 6], isDefault: true
+			},
+			lesser: { 
+				// вспомогательное окно на ранее описанном хосте lesserLaptop
+				// путь к игре и affinity имеет смысл на хосте lesserLaptop - к мастер-хосту не имеет отношения
+				binary: "C:\\game\\L2secondary\\system\\L2.exe", 
+				simpleGraph: true, affinity: [0, 2], host: 'lesserLaptop' 
+			}
 		},
 		
+		// персонажи, они же аккаунты (т.к. на одном аккаунте только один персонаж)
 		characters: {
 			mainSpoiler: { login: 'nartallaxsp', password: passwords.a, name: 'BloodGarnet', roles: ['melee'], profession: 'sp' },
 			mainCrafter: { login: 'nartallaxcr', password: passwords.a, name: 'SturdyOnyx', roles: ['melee'], profession: 'cr' },

@@ -244,7 +244,7 @@ pkg('op.net', () => {
 				return setImmediate(() => cb(this.nodes[hostname]));
 			}
 			
-			var client = new JsonClient(cc.hosts[hostname].ip, config.netPort);
+			var client = new JsonClient(cc.hosts[hostname].ip || cc.hosts[hostname].hostname, config.netPort);
 			client.start(() => {
 				this.addNode(hostname, client);
 				log('Connected to slave on ' + hostname);
