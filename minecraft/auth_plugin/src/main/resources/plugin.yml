@@ -1,0 +1,5 @@
+name: NartallaxAuthPlugin
+main: nartallax.minecraft.auth.AuthPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that allows user management

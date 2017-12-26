@@ -1,0 +1,22 @@
+name: NartallaxChatPlugin
+main: nartallax.minecraft.chat.ChatPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that introduces some additional chat features.
+
+commands:
+  nartallax-chat.chat:
+    description: Root command for all the features of the mod. Help inside.
+    usage: /chat
+    permission: nartallax-chat.chat
+    permission-message: You don't have nartallax-chat.chat
+  nartallax-chat.pm:
+    description: Shorthand for /chat pm
+    usage: /pm nick message
+    permission: nartallax-chat.chat
+    permission-message: You don't have nartallax-chat.chat
+
+permissions:
+  nartallax-chat.chat
+    description: Allows to do everything with chat.
+    default: true

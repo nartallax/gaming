@@ -1,0 +1,48 @@
+name: NartallaxControlPlugin
+main: nartallax.minecraft.control.plugin.ControlPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that allows to manage users and bans. Works with nartallax-control-mod.
+
+commands:
+  ban:
+    description: Bans specified player for a specified amount of time with a specified reason
+    usage: /<command> [player] [time (seconds)] [reason]
+    permission: nartallax-control.ban
+    permission-message: You don't have <permission>
+  getban:
+    description: Views a ban that is applied to particular player
+    usage: /<command> [player]
+    permission: nartallax-control.getban
+    permission-message: You don't have <permission>
+  unban:
+    description: Resets a ban that is applied to particular players
+    usage: /<command> [player]
+    permission: nartallax-control.unban
+    permission-message: You don't have <permission>
+  cluster:
+    description: Shows a list of players that seems to be twinks of particular player
+    usage: /<command> [player]
+    permission: nartallax-control.cluster
+    permission-message: You don't have <permission>
+
+permissions:
+  nartallax-control.*:
+    description: Allows to do everything with bans or player clusters.
+    children:
+      nartallax.ban: true
+      nartallax.getban: true
+      nartallax.unban: true
+      nartallax.cluster: true
+  nartallax-control.ban:
+    description: Allows to set ban on a player
+    default: op
+  nartallax-control.getban:
+    description: Allows to view ban on a player
+    default: op
+  nartallax-control.unban:
+    description: Allows to reset ban on a player
+    default: op
+  nartallax-control.cluster:
+    description: Allows to view what players seems alike with a particular
+    default: op

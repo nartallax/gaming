@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<title>Auth server frontpage</title>
+		
+		<script>
+			var el = function(name){ return document.getElementById(name) }
+			
+			var valOf = function(name){ return el(name).value }
+			
+			var api = function(name, params, data, callback){
+				var pathBase = window.location.origin + window.location.pathname.replace(/\/$/, ""),
+					path = pathBase + '/' + name,
+					xhr = new XMLHttpRequest(); 
+					
+				var urlParams = [];
+				
+				if(params.id) urlParams.push('id=' + encodeURIComponent(params.id)) 
+				if(params.pwd) urlParams.push('pwd=' + encodeURIComponent(params.pwd)) 
+				if(params.nick) urlParams.push('nick=' + encodeURIComponent(params.nick)) 
+				
+				urlParams = urlParams.join('&');
+				path += '?' + urlParams;
+				
+				console.log(path);
+				
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState == 4 && xhr.status == 200) callback(JSON.parse(xhr.responseText));
+				};
+				
+				xhr.open("POST", path, true);
+				xhr.send(typeof(data) === 'object'? JSON.stringify(data): data);
+			};
+			
+			var runRequest = function(){
+				api(valOf('func'), {id: valOf('id'), pwd: valOf('pwd'), nick: valOf('nick')}, "", function(result){
+					el('out').textContent = JSON.stringify(result);
+				});
+			}
+		
+		</script>
+		
+	</head>
+	
+	<body>
+		func: <input id="func"/><br/>
+		id: <input id="id"/><br/>
+		nick: <input id="nick"/><br/>
+		pwd: <input id="pwd"/><br/>
+		<input type="button" value="run" onclick="runRequest()"><br/>
+		<pre id="out" style="width:300px;height:300px;"></pre>
+	</body>
+	
+	
+</html>

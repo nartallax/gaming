@@ -1,0 +1,5 @@
+name: NartallaxTelemetryPlugin
+main: nartallax.minecraft.telemetry.TelemetryPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that regularry dumps short state of the server to file

@@ -1,0 +1,5 @@
+name: NartallaxAmbientPlugin
+main: nartallax.minecraft.ambient.AmbientPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that rules the weather and the daytime change

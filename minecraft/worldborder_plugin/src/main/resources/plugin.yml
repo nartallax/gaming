@@ -1,0 +1,5 @@
+name: NartallaxWorldBorderIdleGeneratorPlugin
+main: nartallax.minecraft.worldborder.WorldBorderIdleGeneratorPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that helps to generate world when server is idle

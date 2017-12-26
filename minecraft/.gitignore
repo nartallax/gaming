@@ -1,0 +1,8 @@
+/*/target/**
+/*/build/**
+/*/*.iml
+/launcher/launcher/*
+/launcher/minecraft/*
+/*/.*/**
+/auth_serv/users/**
+/update_serv/client/**

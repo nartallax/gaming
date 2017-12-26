@@ -1,0 +1,21 @@
+name: NartallaxTransmutationPlugin
+main: nartallax.minecraft.transmutation.TransmutationPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that allows to add in-inventory crafting recipes and limit them
+
+commands:
+  transmutate:
+    description: Applies all the available and applicable transmutations to contents of callee' inventory
+    usage: /<command>
+    permission: nartallax-transmutation.transmutate
+    permission-message: You don't have <permission>
+
+permissions:
+  nartallax-transmutation.*:
+    description: Alias for nartallax-transmutation.transmutate
+    children:
+      nartallax-transmutation.transmutate: true
+  nartallax-transmutation.transmutate:
+    description: Allows to apply all available and applicable transmutations to contents of callee' inventory
+    default: true

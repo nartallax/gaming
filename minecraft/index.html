@@ -1,0 +1,202 @@
+<html>
+	<head>
+		<title>Poligona</title>
+		<meta charset="UTF-8">
+		<link rel="icon" type="image/png" href="favicon.png">
+		<script>
+		
+			var statsUpdateInterval = 15000;
+			var getStatsAddress = function(){ return "http://" + (window.location.host || "nartallax.noip.me").replace(/^https?\/\//, "") + ":82" };
+			
+			var tag = function(name, props){
+				var res = document.createElement(name);
+				for(var i in props) res.setAttribute(i, props[i]);
+				return res;
+			}
+			
+			var el = function(id){ return document.getElementById(id) }
+			
+			var createStatsBlock = function(){
+				var result = tag('div', {class: 'block', id: 'stats-block'});
+				result.textContent = "Состояние сервера:";
+				var list = tag('ul');
+				var tpsContainer = tag('li', {id: 'tps'}),
+					playersContainer = tag('li', {id: 'players'}),
+					totalPlayersContainer = tag('li', {id: 'total-players'});
+					
+				list.appendChild(tpsContainer);
+				list.appendChild(playersContainer);
+				list.appendChild(totalPlayersContainer);
+				result.appendChild(list);
+				el('left-col').appendChild(result);
+			}
+			
+			var updateStatsWith = function(data){
+				if(!data || !data.success) {
+					var node = el('stats-block');
+					if(node){
+						node.parentNode.removeChild(node);
+					}
+					return;
+				}
+				
+				data = data.data;
+				
+				if(!el('stats-block')) createStatsBlock('stats-block')
+				var tps = el('tps'), players = el('players'), totalPlayers = el('total-players');
+				
+				tps.textContent = "TPS: " + data.tps;
+				players.textContent = "Игроков онлайн: " + data.online_players + "/" + data.max_players;
+				totalPlayers.textContent = "Игроков зарегистрировано: " + data.total_players;
+			}
+		
+			var updateStats = function(){
+				var path = getStatsAddress(), xhr = new XMLHttpRequest(); 
+				
+				xhr.onreadystatechange = function() {
+					try {
+						var data = JSON.parse(xhr.responseText);
+						if(data) updateStatsWith(data);
+					} catch (e){}
+				};
+				
+				xhr.open("GET", path, true);
+				xhr.send();
+			}
+			
+			updateStats();
+			setInterval(updateStats, statsUpdateInterval)
+			
+		</script>
+		<style>
+		
+			html, body {				
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+			
+			* {
+				font-family: sans-serif;
+				font-weight: bold;
+				word-wrap: break-word;
+				color: #fff;
+				padding: 0px;
+				margin: 0px;
+			}
+			
+			html { 
+				background: url('bg.jpg') no-repeat center center fixed; 
+				background-size: cover;
+			}
+			
+			h1, h2, h3 {
+				position: absolute;
+				left: 0px;
+				right: 0px;
+				
+				text-align: center;
+				margin:0px;
+			}
+			
+			h1 { font-size: 50px; }
+			
+			h2 { font-size: 30px; }
+			
+			ul { padding: 5px 5px 5px 25px; }
+			
+			li { padding: 2px; }
+			
+			.block {
+				position: relative;
+				background: #000;
+				background: rgba(0, 0, 0, 0.75);
+				border-radius: 10px;
+				margin: 10px;
+				padding: 20px 35px;
+				font-size: 20px;
+			}
+			
+			.center {
+				margin-left: auto; 
+				margin-right: auto;
+			}
+			
+			.column {
+				width: 30%;
+				height: 100%;
+				display: inline-block;
+				vertical-align: top;	
+			}
+			
+			.column:first-child {
+				margin-left:5%;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<div style="height: 130px; width: 400px" class="block center">
+		
+			<h1 style="top:35px">POLIGONA</h1>
+			<h2 style="top:95px">сервер Minecraft</h2>
+			
+		</div>
+		<div style="position: absolute; top: 190px; left: 0px; right: 0px; bottom: 0px">
+			<div class="column" id="right-col">
+				<div class="block">
+					Список модов:
+					<ul>
+						<li>GregTech 5</li>
+						<li>IndustrialCraft 2 Experimental +(Nuclear Control, Gravitation Suite)</li>
+						<li>Applied Energistics 2 +( ExtraCells, Ae2stuff)</li>
+						<li>Buildcraft 7</li>
+						<li>Forestry</li>
+						<li>OpenComputers</li>
+						<li>OpenBlocks</li>
+						<li>Project Red</li>
+						<li>Railcraft</li>
+						<li>Adv-repulsion-systems</li>
+						<li>IronChests</li>
+						<li>Jabba</li>
+						<li>BiblioCraft</li>
+						<li>Carpenter’s Blocks</li>
+						<li>Dragon’s Radio Mod</li>
+						<li>MalisisAdvert</li>
+						<li>Realistic World Gen</li>
+						<li>ChickenChunks</li>
+					</ul>
+				</div>
+			</div>
+			<div class="column" id="center-col">
+				<div class="block">
+					Описание сервера:
+					<ul>
+						<li>Версия Minecraft: 1.7.10</li>
+						<li>Адрес: nartallax.noip.me:25565</li>
+						<li>Радиус карты: 20 000 блоков</li>
+					</ul>
+				</div>
+				<div class="block">
+					Как начать играть:
+					<ul>
+						<li>Скачать лаунчер <a href="launcher.jar">отсюда</a></li>
+						<li>Зарегистрироваться (используя лаунчер)</li>
+						<li>Нажать "Играть"</li>
+						<li>???</li>
+						<li>PROFIT!</li>
+					</ul>
+				</div>
+			</div>
+			<div class="column" id="left-col">
+				<div class="block">
+					Контакты:
+					<ul>
+						<li>Админ: <a href="skype:ckozidanatemel">skype: ckozidanatemel</a></li>
+						<li>Конференция: <a href="https://join.skype.com/bh0BWqdlIYG6">здесь</a></li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

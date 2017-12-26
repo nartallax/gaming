@@ -1,0 +1,16 @@
+[
+{
+  "modid": "nartallax-control",
+  "name": "Nartallax's Control Mod",
+  "description": "Mod that enforces some client-side checks.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Nartallax"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,0 +1,228 @@
+name: NartallaxChatPlugin
+main: nartallax.minecraft.chat.ChatPlugin
+version: 0.1
+author: Nartallax
+description: Plugin that introduces some additional chat features.
+
+commands:
+  nartallax-chat.color:
+    description: Changes color of a nick of a specified person to selected.
+    usage: /color nick color-code
+    permission: nartallax-chat.color
+    permission-message: You don't have nartallax-chat.color
+  nartallax-chat.prefix:
+    description: Changes prefix of a nick of a specified person to selected.
+    usage: /prefix nick prefix-text
+    permission: nartallax-chat.prefix
+    permission-message: You don't have nartallax-chat.prefix
+  nartallax-chat.join:
+    description: Join channel (or create it, if it not exists)
+    usage: /join channel-name
+    permission: nartallax-chat.join
+    permission-message: You don't have nartallax-chat.join
+  nartallax-chat.joinpwd:
+    description: Join channel that have password protection (or create it with provided password)
+    usage: /joinpwd channel-name password
+    permission: nartallax-chat.joinpwd
+    permission-message: You don't have nartallax-chat.joinpwd
+  nartallax-chat.joinunlisted:
+    description: Join a channel normally, if it exists; creates an unlisted channel, if not.
+    usage: /joinunlisted channel-name
+    permission: nartallax-chat.joinunlisted
+    permission-message: You don't have nartallax-chat.joinunlisted
+  nartallax-chat.joinpwdunlisted:
+    description: Join a password-protected channel normally, if it exists; creates an unlisted password-protected channel, if not.
+    usage: /joinpwdunlisted channel-name password
+    permission: nartallax-chat.joinpwdunlisted
+    permission-message: You don't have nartallax-chat.joinpwdunlisted
+  nartallax-chat.leave:
+    description: Leave current channel (join default channel).
+    usage: /leave
+    permission: nartallax-chat.leave
+    permission-message: You don't have nartallax-chat.leave
+  nartallax-chat.post:
+    description: Write a message to a channel without joining it.
+    usage: /post channel-name message
+    permission: nartallax-chat.post
+    permission-message: You don't have nartallax-chat.post
+  nartallax-chat.postpwd:
+    description: Write a message to a password-protected channel without joining it.
+    usage: /postpwd channel-name password message
+    permission: nartallax-chat.postpwd
+    permission-message: You don't have nartallax-chat.postpwd
+  nartallax-chat.pm:
+    description: Write a private message to a specified person
+    usage: /pm nick message
+    permission: nartallax-chat.pm
+    permission-message: You don't have nartallax-chat.pm
+  nartallax-chat.blacklist:
+    description: Shows blacklist, or puts a specified person in a blacklist so you won't see any public messages from him.
+    usage: /blacklist [nick]
+    permission: nartallax-chat.blacklist
+    permission-message: You don't have nartallax-chat.blacklist
+  nartallax-chat.blacklistpm:
+    description: Shows pm-blacklist, or puts a specified person in a pm-blacklist so you won't see any private messages from him.
+    usage: /blacklistpm [nick]
+    permission: nartallax-chat.blacklistpm
+    permission-message: You don't have nartallax-chat.blacklistpm
+  nartallax-chat.unblacklist:
+    description: Remove specified person from blacklist.
+    usage: /unblacklist nick
+    permission: nartallax-chat.unblacklist
+    permission-message: You don't have nartallax-chat.unblacklist
+  nartallax-chat.unblacklistpm:
+    description: Remove specified person from pm-blacklist
+    usage: /unblacklistpm nick
+    permission: nartallax-chat.unblacklistpm
+    permission-message: You don't have nartallax-chat.unblacklistpm
+  nartallax-chat.list:
+    description: Shows all the listed channels.
+    usage: /list
+    permission: nartallax-chat.list
+    permission-message: You don't have nartallax-chat.list
+  nartallax-chat.users:
+    description: Allow to list players that are subscribed to specific (or current) channel
+    usage: /users [channel]
+    permission: nartallax-chat.users
+    permission-message: You don't have nartallax-chat.users
+  nartallax-chat.subscribe:
+    description: Subscribe to a channel to receive a messages without joining it.
+    usage: /subscribe channel-name
+    permission: nartallax-chat.subscribe
+    permission-message: You don't have nartallax-chat.subscribe
+  nartallax-chat.subscribepwd:
+    description: Subscribe to a password-protected channel to receive a messages without joining it.
+    usage: /subscribepwd channel-name password-name
+    permission: nartallax-chat.subscribepwd
+    permission-message: You don't have nartallax-chat.subscribepwd
+  nartallax-chat.unsubscribe:
+    description: Unsubscribe from a channel to stop receiving messages from it.
+    usage: /unsubscribe channel-name
+    permission: nartallax-chat.unsubscribe
+    permission-message: You don't have nartallax-chat.unsubscribe
+  nartallax-chat.forcejoin:
+    description: Silently join or create a channel without a password prompt.
+    usage: /forcejoin channel-name
+    permission: nartallax-chat.forcejoin
+    permission-message: You don't have nartallax-chat.forcejoin
+  nartallax-chat.forcelist:
+    description: List all existing channels.
+    usage: /forcelist
+    permission: nartallax-chat.forcelist
+    permission-message: You don't have nartallax-chat.forcelist
+  nartallax-chat.forcesubscribe:
+    description: Subscribe a channel without password prompt.
+    usage: /forcesubscribe channel-name
+    permission: nartallax-chat.forcesubscribe
+    permission-message: You don't have nartallax-chat.forcesubscribe
+  nartallax-chat.forcepm:
+    description: Write a private-message to a person regardless of his pm-blacklist
+    usage: /forcepm nick message
+    permission: nartallax-chat.forcepm
+    permission-message: You don't have nartallax-chat.forcepm
+  nartallax-chat.forcebroadcast:
+    description: Write a message that will be delivered to every person regardless of blacklist
+    usage: /forcebroadcast message
+    permission: nartallax-chat.forcebroadcast
+    permission-message: You don't have nartallax-chat.forcebroadcast
+
+permissions:
+  nartallax-chat.*:
+    description: Allows to do everything with chat.
+    children:
+      nartallax-chat.color: true
+      nartallax-chat.prefix: true
+      nartallax-chat.join: true
+      nartallax-chat.joinpwd: true
+      nartallax-chat.joinunlisted: true
+      nartallax-chat.joinpwdunlisted: true
+      nartallax-chat.leave: true
+      nartallax-chat.post: true
+      nartallax-chat.postpwd: true
+      nartallax-chat.pm: true
+      nartallax-chat.blacklist: true
+      nartallax-chat.blacklistpm: true
+      nartallax-chat.unblacklist: true
+      nartallax-chat.unblacklistpm: true
+      nartallax-chat.list: true
+      nartallax-chat.users: true
+      nartallax-chat.subscribe: true
+      nartallax-chat.subscribepwd: true
+      nartallax-chat.unsubscribe: true
+      nartallax-chat.forcejoin: true
+      nartallax-chat.forcelist: true
+      nartallax-chat.forcesubscribe: true
+      nartallax-chat.forcepm: true
+      nartallax-chat.forcebroadcast: true
+  nartallax-chat.color:
+      description: Allows to change color of a nick in chat.
+      default: op
+  nartallax-chat.prefix:
+    description: Allows to change prefix of a player in chat
+    default: op
+  nartallax-chat.join:
+    description: Allows to join (create) a channel
+    default: true
+  nartallax-chat.joinpwd:
+    description: Allows to join (create) a channel with password protection
+    default: true
+  nartallax-chat.joinunlisted:
+    description: Allows to create a channel that will not be listed in the common channel list.
+    default: true
+  nartallax-chat.joinpwdunlisted:
+    description: Allows to create a channel that will not be listed in the common channel list, and also will be protected with a password.
+    default: true
+  nartallax-chat.leave:
+    description: Allows to reset a channel to default (exit custom channel)
+    default: true
+  nartallax-chat.post:
+    description: Allows to write a message to a channel without joining it.
+    default: true
+  nartallax-chat.postpwd:
+    description: Allows to write a message to a password-protected channel without joining it.
+    default: true
+  nartallax-chat.pm:
+    description: Allows to write private message to specific person.
+    default: true
+  nartallax-chat.blacklist:
+    description: Allows to put a person into a blacklist so no public messages from the person will be visible to you, or just shows blacklist.
+    default: true
+  nartallax-chat.blacklistpm:
+    description: Allows to put a person into a pm-blacklist so no private messages from the person will be visible to you, or just shows pm-blacklist.
+    default: true
+  nartallax-chat.unblacklist:
+    description: Allows to remove a person from a blacklist.
+    default: true
+  nartallax-chat.unblacklistpm:
+    description: Allows to remove a person from a pm-blacklist.
+    default: true
+  nartallax-chat.list:
+    description: Allows to list all the channels but unlisted.
+    default: true
+  nartallax-chat.users:
+    description: Allow to list players that are subscribed to specific (or current) channel
+    default: true
+  nartallax-chat.subscribe:
+    description: Allows to receive messages from a channel without joining it.
+    default: true
+  nartallax-chat.subscribepwd:
+    description: Allows to receive messages from a password-protected channel without joining it.
+    default: true
+  nartallax-chat.unsubscribe:
+    description: Allows to unsubscribe from channel.
+    default: true
+  nartallax-chat.forcejoin:
+    description: Allows to join (create) a channel without notification and without password prompt. Meant for admin spying.
+    default: op
+  nartallax-chat.forcelist:
+    description: Allows to list all the channels, including unlisted. Meant for admin spying.
+    default: op
+  nartallax-chat.forcesubscribe:
+    description: Allows to subscribe to channel without notification and password prompt. Meant for admin spying.
+    default: op
+  nartallax-chat.forcepm:
+    description: Allows to write a personal message to a person that have pm-blacklisted you. Meant for admin announcements.
+    default: op
+  nartallax-chat.forcebroadcast:
+    description: Allows to write a message that every user will receive regardless of channel or blacklist. Meant for admin announcements.
+    default: op
