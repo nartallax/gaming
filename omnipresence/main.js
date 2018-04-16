@@ -1,7 +1,10 @@
 // omnipresense - a tool to simplify multi-window gaming for Lineage II
-require('../../javascript-common/libs/meta/addict.js')
-	.resolvers(['node', {'../../javascript-common/libs': '', './app': 'op', './': ''}])
+require('./javascript-common/libs/meta/addict.js')
+	.resolvers(['node', {'./javascript-common/libs': '', './app': 'op', './': ''}])
 	.main(() => {
+		pkg('global')();
+		process.chdir(__dirname);
+		
 		var log = pkg('util.log'),
 			CLI = pkg('util.cli'),
 			net = pkg('op.net'),

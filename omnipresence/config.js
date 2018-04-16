@@ -1,6 +1,8 @@
 pkg('config', () => {
 
 	return {
+		keyloggerBinary: 'hooker_dumper\\hooker_dumper.exe',
+
 		expectedWindowCaption: 'Lineage II',
 		windowSearchInterval: 100,
 		windowActivationInterval: 2500,

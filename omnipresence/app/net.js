@@ -180,6 +180,7 @@ pkg('op.net', () => {
 		
 		getIdForHostname: function(hostname){
 			if(!(hostname in this.ids) || Object.keys(this.pendingActions[hostname]).length === 0){
+				//console.log("RESET", hostname, this.ids[hostname], this.pendingActions)
 				this.ids[hostname] = 1;
 			}
 			
@@ -187,16 +188,24 @@ pkg('op.net', () => {
 		},
 		
 		processIncomingMessage: function(msg, hostname){
+			//console.log("Received message with id = " + msg.id + " (" + ('action' in msg? "request": "response") + ")");
+			
 			if('action' in msg){
-				this.routeAndRun(Action.createFrom(msg.action), () => {
-					this.getNode(hostname, node => node.send({id: msg.id, timestamp: msg.timestamp}));
+				this.routeAndRun(Action.createFrom(msg.action), result => {
+					try {
+						JSON.stringify(result)
+					} catch(e){ 
+						result = null
+					}
+					
+					this.getNode(hostname, node => node.send({id: msg.id, timestamp: msg.timestamp, result: result}));
 				});
 			} else {
 				//log('RESPID = ' + msg.id);
 				//log('HOSTNAME = ' + hostname);
 				//log('HANDLER = ' + this.pendingActions[hostname][msg.id]);
 				var waiting = this.pendingActions[hostname][msg.id];
-				waiting && waiting();
+				waiting && waiting(msg.result);
 				delete this.pendingActions[hostname][msg.id];
 			}
 		},
@@ -207,11 +216,11 @@ pkg('op.net', () => {
 				return action.run(cb);
 			}
 			
-			var id = this.getIdForHostname(targetHost),
-				message = { action: action.getDto(), id: id, timestamp: Date.now()};
-			
 			this.getNode(targetHost, node => {
+				var id = this.getIdForHostname(targetHost),
+					message = { action: action.getDto(), id: id, timestamp: Date.now()};
 				this.pendingActions[targetHost][id] = cb;
+				//console.log("Sending message with id = " + message.id + " (" + ('action' in message? "request": "response") + ")");
 				node.send(message)
 			});
 		},
@@ -244,7 +253,7 @@ pkg('op.net', () => {
 				return setImmediate(() => cb(this.nodes[hostname]));
 			}
 			
-			var client = new JsonClient(cc.hosts[hostname].ip || cc.hosts[hostname].hostname, config.netPort);
+			var client = new JsonClient(cc.hosts[hostname].ip, config.netPort);
 			client.start(() => {
 				this.addNode(hostname, client);
 				log('Connected to slave on ' + hostname);

@@ -21,7 +21,7 @@ pkg('op.client', () => {
 			var i = 0;
 			var next = () => {
 				var cl = clients[i++];
-				if(!cl) return this.bringToFront(cb);
+				if(!cl) return cb && cb();
 				this.inviteToParty(cl.char.name, () => cl.acceptParty(next));
 			}
 			

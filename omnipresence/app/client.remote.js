@@ -44,12 +44,15 @@ pkg('op.client.remote',() => {
 		},
 		
 		// начало общего куска интерфейса
+		getBarState: function(cb){ this.operate(cb, "getBarState") },
 		closeWindow: function(cb){ this.operate(cb, 'closeWindow'); },
 		activate: function(cb){ this.operate(cb, 'activate'); },
+		unchat: function(cb){ this.operate(cb, 'unchat'); },
 		relogin: function(cb){
 			log('Relogging ' + this.char.name);
 			this.operate(() => {
 				this.closed = false;
+				cb && cb();
 			}, 'relogin');
 		},
 		reloginIfClosed: function(cb){ this.operate(cb, 'reloginIfClosed') },

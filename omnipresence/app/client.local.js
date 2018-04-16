@@ -8,7 +8,8 @@ pkg('op.client.local',() => {
 		winapi = pkg('win.api'),
 		cp = pkg.external('child_process'),
 		affinityStrategy = pkg('op.core.selection.strategy'),
-		Keylogger = pkg('op.keylogger');
+		Keylogger = pkg('op.keylogger'),
+		Snitch = pkg("op.snitch");
 	
 	var cc = pkg('charconfig');
 
@@ -44,8 +45,12 @@ pkg('op.client.local',() => {
 			var hwnds = Window.hwndsByPID(pid);
 			for(var i in hwnds){
 				var win = new Window(hwnds[i], {sendPreferChars: true, sendDownOnly: true});
-				if(win.getCaption() === config.expectedWindowCaption){
+				//log("Found window with caption: " + win.getCaption());
+				var caption = win.getCaption()
+				if(caption === config.expectedWindowCaption){
 					return win;
+				} else if(caption === "Warning"){
+					win.sendKeyString('{enter}');
 				}
 			}
 			return null;
@@ -73,6 +78,7 @@ pkg('op.client.local',() => {
 			if(!data.line || data.direction !== 'down' || !(data.hwnd in clientList)) return;
 			var cl = clientList[data.hwnd];
 			
+			//console.log("KEYPRESS:", data.line)
 			if(!(data.line in cl.keyHandlers)) return;
 			var handler = cl.keyHandlers[data.line];
 			
@@ -91,9 +97,6 @@ pkg('op.client.local',() => {
 	LocalClient.startFor = (clientName, accountName, cb, id) => {
 		createNewWindow(cc.clients[clientName].binary, (proc, win) => {
 			var cl = new LocalClient(proc, win, cc.clients[clientName], id);
-			if(!(accountName in cc.characters)){
-				throw new Error('Character "' + accountName + '" is not described in config.');
-			}
 			cl.loginFor(cc.characters[accountName], () => {
 				log(cl.char.name + ' logged in.');
 				cb(cl);
@@ -237,7 +240,13 @@ pkg('op.client.local',() => {
 				this.win.sendKeyString(this.char.login);
 				setTimeout(() => {
 					this.waitColorChange(~~(width / 2) - 30, ~~(height / 2) + 10, () => { // login -> rules
+						setTimeout(() => {
+							this.win.sendKeyString('{enter}');
+						}, 1500);
 						this.waitColorChange(~~(width / 2) - 40, ~~(height / 2) + 170, () => { // rules -> server selection
+							setTimeout(() => {
+								this.win.sendKeyString('{enter}');
+							}, 3000);
 							this.waitColorChange(~~(width / 2), ~~(height / 2) + 10, () => { // server selection -> character selection
 								var clickInterval = null, clicksLeft = 3;
 							
@@ -273,9 +282,7 @@ pkg('op.client.local',() => {
 									}, config.minorInterfaceLag * 10);
 								}, config.minorInterfaceLag * 3);
 							}, cb);
-							this.win.sendKeyString('{enter}');
 						}, cb);
-						this.win.sendKeyString('{enter}');
 					}, cb);
 					
 					this.win.sendKeyString('{tab}' + this.char.password + '{enter}');
@@ -291,6 +298,7 @@ pkg('op.client.local',() => {
 		minimize: function(){ this.win.minimize(); },
 		
 		// начало общего куска интерфейса
+		getBarState: function(cb){ cb(Snitch.getBarState(this.win.hwnd)) },
 		closeWindow: function(cb){		
 			this.proc.kill();
 			removeFromClientList(this);
@@ -310,15 +318,19 @@ pkg('op.client.local',() => {
 				});
 			});
 		},
-		reloginIfClosed: function(cb){ this.closed? this.relogin(cb): setImmediate(cb); },
+		reloginIfClosed: function(cb){ this.closed? this.relogin(() => cb(true)): setImmediate(() => cb(false)); },
 		
 		chat: function(str, cb){
-			//console.log('CHATSTRING = ' + str);
-			//console.log('CALLBACK = ' + cb);
 			log(this.char.name + ': ' + str);
-			this.win.sendKeyString('{enter}{back}{back}' + str + '{enter}');
+			this.win.sendKeyString('{end}{shift down}{home}{shift up}{delete}{enter}{end}{shift down}{home}{shift up}{delete}' + str + '{enter}');
 			cb && setImmediate(cb);
 		},
+		
+		unchat: function(cb){
+			this.win.sendKeyString("{end}{shift down}{home}{shift up}{delete}{tab}{tab}");
+			cb && setImmediate(cb);
+		},
+		
 		
 		acceptParty: function(cb){
 			this.bringToFront(() => {
