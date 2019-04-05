@@ -1,10 +1,10 @@
-===Lineage II Command-Line Interface Client===
+# Lineage II Command-Line Interface Client  
 by Nartallax
 
 Encapsulates all the difficulties with binary protocol of Lineage II, providing nice human-readable JSON interface on stdin/stdout.  
 Tested on Chronicle 4, protocol version 656 (0x785a), no GameGuard.
 
-=====How to use=====
+# How to use
 
 0. See help by launching with -h or --help arguments.  
   Learn what arguments do you need to pass.
@@ -26,6 +26,6 @@ This client may not know how to decode some of the incoming packages from server
 The only package this client will handle itself is NetPing, to which it will respond automatically. The rest is on you.  
 As you can see, this is not really client you can play with; more like client that allows you to base something bigger on top of it.  
 
-=====Modification=====
+# Modification
 
 This client is based mostly on knowledge from two pages, which I did put into ./docs. It's first thing you should see before modifications.

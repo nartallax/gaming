@@ -83,23 +83,77 @@ void encodeGamePingResponsePkg(json_value* obj, Binwriter* writer){
 	writeInt(writer, 0x0800);
 }
 
+void encodeGameAnswerTradeRequest(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x44);
+	writeInt(writer, jsonValueByKey(obj, "ok")->u.boolean? 1: 0);
+}
+
+void encodeGameAddTradeItem(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x16);
+	writeInt(writer, jsonValueByKey(obj, "tradeId")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "objId")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "count")->u.integer);
+}
+
+void encodeGameTradeDone(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x17);
+	writeInt(writer, jsonValueByKey(obj, "ok")->u.boolean? 1: 0);
+}
+
+void encodeGameAnswerJoinParty(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x2a);
+	writeInt(writer, jsonValueByKey(obj, "ok")->u.boolean? 1: 0);
+}
+
+void encodeGameLeaveParty(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x2b);
+}
+
+void encodeGameAction(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x04);
+	writeInt(writer, jsonValueByKey(obj, "objId")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "x")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "y")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "z")->u.integer);
+	writeByte(writer, jsonValueByKey(obj, "shift")->u.boolean? 1: 0);
+}
+
+void encodeGameRequestSkillList(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x3f);
+}
+
+void encodeGameMagicSkillUse(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x2f);
+	writeInt(writer, jsonValueByKey(obj, "skillId")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "ctrl")->u.boolean? 1: 0);
+	writeInt(writer, jsonValueByKey(obj, "shift")->u.boolean? 1: 0);
+}
+
+
+
+
 Binwriter* encodeGameServerPkg(const char* pkgJson){
 	json_value* obj = json_parse(pkgJson, stringLength(pkgJson));
 	char* type = jsonValueByKey(obj, "type")->u.string.ptr;
 
 	Binwriter* writer = getBinwriter();
 
-	if(!strcmp(type, "ProtocolVersion")){
-		encodeGameProtocolVersionPkg(obj, writer);
-	} else if(!strcmp(type, "RequestAuthLogin")){
-		encodeGameRequestAuthLoginPkg(obj, writer);
-	} else if(!strcmp(type, "CharacterSelected")){
-		encodeGameCharacterSelectedPkg(obj, writer);
-	} else if(!strcmp(type, "EnterWorld")){
-		encodeGameEnterWorldPkg(obj, writer);
-	} else if(!strcmp(type, "PingResponse")){
-		encodeGamePingResponsePkg(obj, writer);
-	} else {
+	     if(!strcmp(type, "ProtocolVersion")) 		encodeGameProtocolVersionPkg(obj, writer);
+	else if(!strcmp(type, "RequestAuthLogin"))		encodeGameRequestAuthLoginPkg(obj, writer);
+	else if(!strcmp(type, "CharacterSelected"))		encodeGameCharacterSelectedPkg(obj, writer);
+	else if(!strcmp(type, "EnterWorld"))			encodeGameEnterWorldPkg(obj, writer);
+	else if(!strcmp(type, "PingResponse"))			encodeGamePingResponsePkg(obj, writer);
+
+	else if(!strcmp(type, "AnswerTradeRequest"))	encodeGameAnswerTradeRequest(obj, writer);
+	else if(!strcmp(type, "AddTradeItem"))			encodeGameAddTradeItem(obj, writer);
+	else if(!strcmp(type, "TradeDone"))				encodeGameTradeDone(obj, writer);
+	else if(!strcmp(type, "AnswerJoinParty"))		encodeGameAnswerJoinParty(obj, writer);
+	else if(!strcmp(type, "LeaveParty"))			encodeGameLeaveParty(obj, writer);
+	else if(!strcmp(type, "Action"))				encodeGameAction(obj, writer);
+	else if(!strcmp(type, "RequestSkillList"))		encodeGameRequestSkillList(obj, writer);
+	else if(!strcmp(type, "MagicSkillUse"))			encodeGameMagicSkillUse(obj, writer);
+
+	else {
 		exitWithError("Unknown game server package type: \"%s\".", type);
 	}
 
