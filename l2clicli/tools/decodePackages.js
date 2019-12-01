@@ -86,6 +86,7 @@ class PackageChipper {
 			}
 			
 			for(pkgStr of pkgStrs){
+				//console.log("WRITING " + pkgStr);
 				await Promise.all([
 					new Promise(ok => proc.stdin.write(pkgStr + "\n", "utf8", ok)),
 					new Promise(ok => { onLineFromProc = ok }),

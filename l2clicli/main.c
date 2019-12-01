@@ -118,7 +118,7 @@ Other options:\n\
 
 int main(int argc, char* argv[]){
 	/*
-	char* str = "B5BDC0482FADFEFFCFD60300E8F1FFFF08000000";
+	char* str = "D90C11495CB1FEFFDED5030008F2FFFF8E060000";
 	int l = stringLength(str);
 	byte* bin = hexToBinary(str, l);
 	Binreader* reader = getBinreader(bin, l / 2);

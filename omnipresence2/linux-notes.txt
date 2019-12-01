@@ -1,0 +1,4 @@
+Install:
+winetricks corefonts d3dx9 tahoma dotnet20 directx9
+dotnet20 is NOT present in x64, and not needed
+better do this in separate wineprefix

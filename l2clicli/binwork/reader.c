@@ -21,6 +21,12 @@ Binreader* getBinreader(const byte* data, const unsigned int length){
 }
 
 byte readByte(Binreader* reader){
+	/*
+	if(reader->position >= reader->length){
+		fprintf(stderr, "Attempt to read past package end!\n");
+		return 0;
+	}
+	*/
 	return reader->data[reader->position++];
 }
 
@@ -47,8 +53,16 @@ int binreaderGetUtf16StringLength(Binreader* reader){
 	// for now, let's assume it's 2 bytes per char always
 	int charLength = 0;
 	int pos = reader->position;
-	while(reader->data[pos + (charLength * 2)] || reader->data[pos + (charLength * 2) + 1])
+	while(pos + (charLength * 2) + 1 < reader->length 
+		&& (reader->data[pos + (charLength * 2)] || reader->data[pos + (charLength * 2) + 1])){
 		charLength++;
+	}
+	/*
+	if(pos + (charLength * 2) + 1 == reader->length){
+		fprintf(stderr, "Attempt to read past package end!\n");
+		return 0;
+	}
+	*/
 	return charLength;
 }
 

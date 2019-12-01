@@ -1,0 +1,1576 @@
+
+<!-- saved from url=(0042)http://www.la2kings.ru/la2bot/packets.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1251">
+<title>Lineage II Packets</title>
+
+<style type="text/css">
+
+.comment {
+     color:#008800;
+}
+
+H2, H3 {
+     font-weight:bold;
+     text-decoration: underline;
+}
+
+</style>
+<script language="JavaScript" src="./Lineage II Packets updated_files/packets.js"></script>
+</head>
+<body leftmargin="13" onload="BeginFly();">
+<div id="fly" style="position:absolute; left:650; top:2000; z-index:1; border-width:2px; border-style:ridge; padding:5px; padding-right:6px; background-color:white; cursor:move">
+<pre> <a href="http://www.la2kings.ru/la2bot/packets.html#"><span style="text-decoration:none;"><sub><b>&#8593;&#8593;&#8593;</b></sub></span></a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#common">Об.св.</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CltoLS">CL-&gt;LS</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#LStoCl">LS-&gt;CL</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CltoGS">CL-&gt;GS</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#GStoCl">GS-&gt;CL</a>
+ <a href="http://www.la2kings.ru/la2bot/packets.html#bottom"><span style="text-decoration:none;"><sub><b>&#8595;&#8595;&#8595;</b></sub></span></a>
+</pre>
+<a href="http://www.la2kings.ru/la2bot/packets.html#xxx" onclick="CloseFly();">Close</a>
+</div>
+
+<!--LiveInternet counter-->
+<script type="text/javascript"><!--
+document.write("<img src='http://counter.yadro.ru/hit?r"+
+escape(document.referrer)+((typeof(screen)=="undefined")?"":
+";s"+screen.width+"*"+screen.height+"*"+(screen.colorDepth?
+screen.colorDepth:screen.pixelDepth))+";u"+escape(document.URL)+
+";"+Math.random()+
+"' width=1 height=1 alt=''>")//--></script><img src="./Lineage II Packets updated_files/hit" width="1" height="1" alt="">
+<!--/LiveInternet-->
+<tt>
+<big>
+Автор данной статьи: <span onclick="location.href=&#39;http://www.la2kings.ru/la2bot/packets.html&#39;"><b>KyberPrizrak</b></span>&nbsp; (мылo:<img width="101" height="11" src="./Lineage II Packets updated_files/x.gif" border="0" hspace="0" vspace="0" style="position:relative; top:2px">)</big>
+<br>
+(создана/обновлена: 15.02.07г. - 6.07.07г.)<br>
+<br>
+<span class="comment">
+&nbsp;&nbsp;&nbsp;Данная статья не появилась бы на свет, если бы не статья TechnoWiz@rd'a: <a href="http://fursoffers.narod.ru/Packets.htm">Packets.htm</a>, являющейся первой подобной статьей-справочником по пакетам Lineage2. Но в ней просто куууча грубейших ошибок, да и очень многих важных пакетов - попросту нету... В связи с чем я решил написать свою статью...<br>
+&nbsp;&nbsp;&nbsp;Дизайн и структура данной статьи полностью скопированы со статьи TechnoWiz@rd'a. В остальном же все добывалось лично мной: структура пакетов бралась из исходников C4J-сервера, и тщательным образом сверялась с теми пакетами, которыми общаются C4ПТС-сервер и клиент (для этого использовались программы l2proxy и hLaPEx).<br>
+&nbsp;&nbsp;&nbsp;Все, что находится в фигурных скобках {} - это те данные, в которых я частично или полностью не уверен! Осторожнее! (Все что касается RSA &amp; GG - считайте что оно в фигурных скобках ^_^ )<br>
+</span>
+
+<br><br><big>В качестве благодарности, отправте хотябы копейку на: R276344948837 или Z259994239465</big><br>
+
+<br><br><h2>Содержание</h2>
+<a href="http://www.la2kings.ru/la2bot/packets.html#common">1. Общие сведения</a><br>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CltoLS">2. Пакеты Client -&gt; Login Server</a><br>
+<a href="http://www.la2kings.ru/la2bot/packets.html#LStoCl">3. Пакеты Login Server -&gt; Client</a><br>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CltoGS">4. Пакеты Client -&gt; Game Server</a><br>
+<a href="http://www.la2kings.ru/la2bot/packets.html#GStoCl">5. Пакеты Game Server -&gt; Client</a><br>
+
+
+<a name="common"><h2>1. Общие сведения</h2>
+<b>1.1. Процесс входа в игру:</b><br>
+1) Сразу после установки соединения сервер отправляет клиенту пакет </a><a href="http://www.la2kings.ru/la2bot/packets.html#Init">Init</a><br>
+2) С этого момента, все следующие пакеты для/от LS зашифрованны Blowfish'ем, ключем является: Token + символ с кодом ноль (так что длина ключа не 20, а 21!)<br>
+3) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestAuthLogin_LS">RequestAuthLogin</a>, содержащий логин и пароль<br>
+4) Если авторизация прошла успешно, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">LoginOk</a>, содержащий SessionKey1. Иначе, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#LoginFail">LoginFail</a>, содержащий информацию о причине неудачной авторизации.<br>
+5) Клиент запрашивает список серверов отправляя пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestServerList">RequestServerList</a><br>
+6) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#ServerList">ServerList</a>, в котором содержится список доступных гейм серверов, с указанием IP-адресов/портов каждого сервера, его состояния, количеством игроков и некоторой другой информацией<br>
+7) Клиент отсылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestServerLogin">RequestServerLogin</a><br>
+8) Сервер проверяет, можно ли подключится к выбранному GS, если да - сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#PlayOk">PlayOk</a>, содержащий SessionKey2. Иначе, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#PlayFail">PlayFail</a>, содержащий информацию почему нельзя подключится.<br>
+9) Теперь мы можем попрощатся с LS и закрыть соединение с ним. (мы получили от него все необходимые данные)<br>
+10) Открываем соединение с GS. (IP-адресс и порт сервера мы получили в пакете <a href="http://www.la2kings.ru/la2bot/packets.html#ServerList">ServerList</a>)<br>
+11) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#ProtocolVersion">ProtocolVersion</a><br>
+12) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#FirstKey">FirstKey</a>, содержащий первые 4 байта ключа XorKey<br>
+13) С этого момента, все следующие пакеты для/от GS зашифрованны! (о шифровании и ключе - будет чуть ниже)<br>
+14) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestAuthLogin">RequestAuthLogin</a><br>
+15) Сервер присылает <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelectionInfo">CharacterSelectionInfo</a>, содержащий список чаров<br>
+16) [тут может идти общение с сервером по управлению чарами - создание, удаление, востановление. Вдаватся не буду, ибо вам это пока не нужно. Просто пропускаем этот пункт.]<br>
+17) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelected_OUT">CharacterSelected</a>, содержащий номер чара, которым мы хотим зайти<br>
+18) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#SSQInfo">SSQInfo</a>, он необходим клиенту для выбора цвета неба и луны.<br>
+19) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelected">CharacterSelected</a><br>
+20) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestManorList">RequestManorList</a>, и сразу же за ним отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#RequestQuestList">RequestQuestList</a><br>
+21) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#ExSendManorList">ExSendManorList</a><br>
+22) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#QuestList">QuestList</a>, но обратите внимание - в данный момент нам будет сказанно что квестов/итемов - ноль, даже если это не так<br>
+23) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#EnterWorld">EnterWorld</a> - Поздравляю, мы в игре!<br>
+Замечание: GS через определенные интервалы времени (~60сек), присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#NetPing">NetPing</a>, из которого мы должны сохранить значение, и вставив его в одноименный пакет <a href="http://www.la2kings.ru/la2bot/packets.html#NetPingOut">NetPing</a>, отправить серверу.<br>
+<br>
+Дальше могу вас обрадовать - все просто до безобразия! ^_^<br>
+Кроме ответа на NetPing мы мы не обязанны чтолибо отсылать серверу. А значит можем бесконечно долго находится в игре и просто слушать то, что нам шлет сервер. Неизвестные пакеты мы просто игнорируем!<br>
+<br><br><br>
+
+<b>1.1.2 Общение с сервером по управлению чарами:</b><br>
+ Создание:<br>
+1) Когда клиент открывает окошко создания чара, серверу отправляется пакет <a href="http://www.la2kings.ru/la2bot/packets.html#NewCharacter">NewCharacter</a><br>
+2) Сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#NewCharacterSuccess">NewCharacterSuccess</a>, содержащий статы базовых классов в игре<br>
+3) При нажатии на кнопку создать, клиент оправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreate">CharacterCreate</a><br>
+4) Если чар удачно создан, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreateSuccess">CharacterCreateSuccess</a>, и следом за ним присылает обновленный список чаров: <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelectionInfo">CharacterSelectionInfo</a>. Если же создать чара не удалось, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreateFail">CharacterCreateFail</a>, и возвращаемся в предыдущий пункт<br>
+<br><br>
+
+ Удаление:<br>
+1) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDelete">CharacterDelete</a>, содержащий номер чара, которого мы хотим удалить<br>
+2) Если чар удачно удален, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDeleteSuccess">CharacterDeleteSuccess</a>, если же удалить чара не удалось, сервер присылает пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDeleteFail">CharacterDeleteFail</a><br>
+3) Удалось удалить чара или нет, сервер присылает обновленный список чаров: <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelectionInfo">CharacterSelectionInfo</a><br>
+<br><br>
+
+ Востановление:<br>
+1) Клиент отправляет пакет <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterRestore">CharacterRestore</a>, содержащий номер чара, которого мы хотим востановить<br>
+2) Если востановление было удачно, сервер присылает обновленный список чаров: <a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelectionInfo">CharacterSelectionInfo</a>, если же нет, то ничего.<br>
+ 
+
+<br><br><br>
+<b>1.2. Шифрация пакетов GameServer'a:</b><br>
+Чтобы не загружать ваши и без того замученные головы, вместо алгоритмов, я дам готовые исходники (немного измененные для наглядности):
+
+<pre><span class="comment">
+    char key_sc[8];
+    char key_cs[8];
+
+    void Encrypt(char *raw, int size) 
+    { 
+        int temp = 0;
+        for (int i=0; i&lt;size; i++) 
+        { 
+            int temp2 = raw[i] &amp;0xff; 
+            raw[i] = (char)(temp2 ^ (key_cs[i&amp;7] &amp;0xff) ^ temp); 
+            temp = raw[i]; 
+        }
+        int old = key_cs[0] &amp;0xff; 
+        old |= key_cs[1] &lt;&lt; 8 &amp;0xff00; 
+        old |= key_cs[2] &lt;&lt; 0x10 &amp;0xff0000; 
+        old |= key_cs[3] &lt;&lt; 0x18 &amp;0xff000000; 
+        old += size; 
+        key_cs[0] = (char)(old &amp;0xff); 
+        key_cs[1] = (char)(old &gt;&gt; 0x08 &amp;0xff); 
+        key_cs[2] = (char)(old &gt;&gt; 0x10 &amp;0xff); 
+        key_cs[3] = (char)(old &gt;&gt; 0x18 &amp;0xff); 
+    }
+
+
+    void Decode(char *input, int size)
+    {
+        int i = 0;
+        int j = 0;
+        for(int k=0; k &lt; size; k++)
+        {
+            int i1 = input[k] &amp; 0xFF;
+            input[k] = (char)(i1 ^ key_sc[j++] &amp; 0xFF ^i);
+            i = i1;
+            if(j&gt;7) j=0;
+        }
+        long l = key_sc[0] &amp; 0xFF;
+        l |= key_sc[1] &lt;&lt; 8 &amp; 0xFF00;
+        l |= key_sc[2] &lt;&lt; 16 &amp; 0xFF0000;
+        l |= key_sc[3] &lt;&lt; 24 &amp; 0xFF000000;
+        l += size;
+        key_sc[0] = (char)(l &amp; 255L);
+        key_sc[1] = (char)(l &gt;&gt; 8 &amp; 255L);
+        key_sc[2] = (char)(l &gt;&gt; 16 &amp; 255L);
+        key_sc[3] = (char)(l &gt;&gt; 24 &amp; 255L);
+    }
+
+
+    void Key(char* packet, int len)
+    {
+        key_sc[0] = packet[4];
+        key_sc[1] = packet[5];
+        key_sc[2] = packet[6];
+        key_sc[3] = packet[7];
+        key_sc[4] = (char)0xA1;
+        key_sc[5] = (char)0x6C;
+        key_sc[6] = (char)0x54;
+        key_sc[7] = (char)0x87;
+        for(i=0;i&lt;8;i++) {key_cs[i]=key_sc[i];}
+    }
+
+    void add_ckecksum(unsigned char *raw, int count) //вычисляет чексумму и вставляет её в пакет
+    {                                                //как пользоватся: add_ckecksum(CelyjPaket+2, DlinaPaketa-(2+4+4));
+        unsigned long chksum = 0;
+        unsigned long ecx;
+        int i = 0;
+        for(i = 0; i &lt; count; i += 4)
+        {
+            ecx  = (unsigned long)raw[i];
+            ecx |= (unsigned long)raw[i + 1]&lt;&lt;8;
+            ecx |= (unsigned long)raw[i + 2]&lt;&lt;16;
+            ecx |= (unsigned long)raw[i + 3]&lt;&lt;24;
+            chksum ^= ecx;
+        }
+        memcpy(raw+count, (char *)&amp;chksum, 4);
+    }
+
+    void RSAKeyDecode(char* RSAKey)
+    {
+        for (int i = 0; i &lt; 64; i++)
+        {
+            RSAKey[i + 64] ^= RSAKey[i];
+        }
+        for (int i = 0; i &lt; 4; i++)
+        {
+            RSAKey[i + 13] ^= RSAKey[i + 52];
+        }
+        for (int i = 0; i &lt; 64; i++)
+        {
+            RSAKey[i] ^= RSAKey[i + 64];
+        }
+        for (int i = 0; i &lt; 4; i++)
+        {
+            BYTE tmp = RSAKey[i];
+            RSAKey[i] = RSAKey[i + 77];
+            RSAKey[i + 77] = tmp;
+        }
+    }
+
+<!-- оригинал:
+    char key_sc[8];
+    char key_cs[8];
+
+    void Encrypt(char *raw, int size) 
+    { 
+        int temp = 0;
+        for (int i=0; i&#60;size; i++) 
+        { 
+            int temp2 = raw[i] &0xff; 
+            raw[i] = (char)(temp2 ^ (key_cs[i&7] &0xff) ^ temp); 
+            temp = raw[i]; 
+        }
+        int old = key_cs[0] &0xff; 
+        old |= key_cs[1] &#60;&#60; 8 &0xff00; 
+        old |= key_cs[2] &#60;&#60; 0x10 &0xff0000; 
+        old |= key_cs[3] &#60;&#60; 0x18 &0xff000000; 
+        old += size; 
+        key_cs[0] = (char)(old &0xff); 
+        key_cs[1] = (char)(old >> 0x08 &0xff); 
+        key_cs[2] = (char)(old >> 0x10 &0xff); 
+        key_cs[3] = (char)(old >> 0x18 &0xff); 
+    }
+
+
+    void Decode(char *input, int size)
+    {
+        int i = 0;
+        int j = 0;
+        for(int k=0; k &#60; size; k++)
+        {
+            int i1 = input[k] & 0xFF;
+            input[k] = (char)(i1 ^ key_sc[j++] & 0xFF ^i);
+            i = i1;
+            if(j>7) j=0;
+        }
+        long l = key_sc[0] & 0xFF;
+        l |= key_sc[1] &#60;&#60; 8 & 0xFF00;
+        l |= key_sc[2] &#60;&#60; 16 & 0xFF0000;
+        l |= key_sc[3] &#60;&#60; 24 & 0xFF000000;
+        l += size;
+        key_sc[0] = (char)(l & 255L);
+        key_sc[1] = (char)(l >> 8 & 255L);
+        key_sc[2] = (char)(l >> 16 & 255L);
+        key_sc[3] = (char)(l >> 24 & 255L);
+    }
+
+
+    void Key(char* packet, int len)
+    {
+        key_sc[0] = packet[4];
+        key_sc[1] = packet[5];
+        key_sc[2] = packet[6];
+        key_sc[3] = packet[7];
+        key_sc[4] = (char)0xA1;
+        key_sc[5] = (char)0x6C;
+        key_sc[6] = (char)0x54;
+        key_sc[7] = (char)0x87;
+        for(i=0;i&#60;8;i++) {key_cs[i]=key_sc[i];}
+    }
+
+    void add_ckecksum(unsigned char *raw, int count) // функция, вычисляет чексумму и вставляет её в пакет
+    {
+        unsigned long chksum = 0;
+        unsigned long ecx;
+        int i = 0;
+        for(i = 0; i < count; i += 4)
+        {
+            ecx  = (unsigned long)raw[i];
+            ecx |= (unsigned long)raw[i + 1]<<8;
+            ecx |= (unsigned long)raw[i + 2]<<16;
+            ecx |= (unsigned long)raw[i + 3]<<24;
+            chksum ^= ecx;
+        }
+        memcpy(raw+count, (char *)&chksum, 4);
+    }
+
+    void RSAKeyDecode(char* RSAKey)
+    {
+        for (int i = 0; i < 64; i++)
+        {
+            RSAKey[i + 64] ^= RSAKey[i];
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            RSAKey[i + 13] ^= RSAKey[i + 52];
+        }
+        for (int i = 0; i < 64; i++)
+        {
+            RSAKey[i] ^= RSAKey[i + 64];
+        }
+        for (int i = 0; i < 4; i++)
+        {
+            BYTE tmp = RSAKey[i];
+            RSAKey[i] = RSAKey[i + 77];
+            RSAKey[i + 77] = tmp;
+        }
+    } -->
+</span></pre>
+Во первых заметьте, что после каждой шифрации или дешифрации ключ которым мы пользовались, будет изменен! И обратите особое внимание, у нас два ключа!!! Одним мы шифруем пакеты, которые мы отправляем серверу, вторым мы дешифруем пакеты которые сервер присылает нам. Процедура Key из данных пакета <a href="http://www.la2kings.ru/la2bot/packets.html#FirstKey">FirstKey</a> устанавливает нам оба ключа (изначально ключи равны друг-другу).<br><br>
+Да, и забыл сказать - и Blowfish, и Xor-шифрация шифруют пакет начиная с третего байта! (т.е. первые два байта, означающие размер пакета - НЕ ШИФРУЮТСЯ НИКОГДА!!!)<br><br>
+
+
+P.S. тема <a href="http://www.allcheats.ru/showthread.php?t=25114">"пишем своего бота"</a> - все вопросы по пакетному уровню, или по написанию бота можете задавать туда
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br>
+<pre><a name="CltoLS"><h2>2. Пакеты Client -&gt; Login Server</h2>
+</a><a href="http://www.la2kings.ru/la2bot/packets.html#RequestAuthLogin_LS">00 - RequestAuthLogin</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestAuthLogin_LSRSA">00 - RequestAuthLogin (RSA)</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestServerLogin">02 - RequestServerLogin</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestServerList">05 - RequestServerList</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestGGAuth">07 - RequestGGAuth</a>
+
+<hr>
+<a name="RequestAuthLogin_LS"><h3>RequestAuthLogin</h3>
+<b>Формат</b>:
+32 00           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX       <span class="comment">// Login (учтите, эта строка - массив из 14 символов)</span>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX <span class="comment">// Password (... из 16 символов ...)</span>
+08 00 00 00 00 00 00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Замечание: Если длина логина/пароля равна длине массива, то строка идет без ноль-терминатора!</span>
+
+<hr>
+</a><a name="RequestAuthLogin_LSRSA"><h3>RequestAuthLogin (RSA)</h3>
+<b>Формат</b>:
+AA 00           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+<span class="comment">[начало зашифрованного блока]</span>
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 20
+00 00 XX XX XX XX XX XX XX XX XX XX XX XX XX XX  <span class="comment">// Login (учтите, эта строка - массив из 14 символов)</span>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX  <span class="comment">// Password (... из 16 символов ...)</span>
+<span class="comment">[конец зашифрованного блока]</span>
+XX XX XX XX     <span class="comment">// GGAuthResponse из </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#GGAuth">GGAuth</a>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+08 00 00 00 00 00 00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Замечание: Если длина логина/пароля равна длине массива, то строка идет без ноль-терминатора!</span>
+
+<hr>
+<a name="RequestGGAuth"><h3>RequestGGAuth</h3>
+<b>Формат</b>:
+22 00           <span class="comment">// Длина</span>
+07              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// ID сессии</span>
+23 92 90 4d
+18 30 b5 7c
+96 61 41 47
+05 07 96 fb
+00 00 00
+f2 12 ba a9     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<hr>
+</a><a name="RequestServerLogin"><h3>RequestServerLogin</h3>
+<b>Формат</b>:
+1A 00           <span class="comment">// Длина</span>
+02              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// SessionKey1_FistPart из </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">LoginOk</a>
+XX XX XX XX     <span class="comment">// SessionKey1_SecondPart из <a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">LoginOk</a></span>
+XX              <span class="comment">// ID сервера</span>
+00 00 00 00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<hr>
+<a name="RequestServerList"><h3>RequestServerList</h3>
+<b>Формат</b>:
+1A 00           <span class="comment">// Длина</span>
+05              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// SessionKey1_FistPart из </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">LoginOk</a>
+XX XX XX XX     <span class="comment">// SessionKey1_SecondPart из <a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">LoginOk</a></span>
+04 00 00 00
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<hr>
+</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br>
+<pre><a name="LStoCl"><h2>3. Пакеты Login Server -&gt; Client</h2>
+</a><a href="http://www.la2kings.ru/la2bot/packets.html#Init">00 - Init</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#InitRSA">00 - Init (RSA)</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#LoginFail">01 - LoginFail</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#LoginOk">03 - LoginOk</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#ServerList">04 - ServerList</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#PlayFail">06 - PlayFail</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#PlayOk">07 - PlayOk</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#GGAuth">0B - GGAuth</a>
+
+<hr>
+<a name="Init"><h3>Init</h3>
+<b>Формат</b>:
+0B 00           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// ID сессии</span>
+XX XX XX XX     <span class="comment">// Ревизия протокола, на моем сервере она равна 0x785A</span>
+
+<hr>
+</a><a name="InitRSA"><h3>Init (RSA)</h3>
+<b>Формат</b>:
+9B 00           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// ID сессии</span>
+XX XX XX XX     <span class="comment">// Ревизия протокола</span>
+<span class="comment">[начало зашифрованного RSA-ключа]</span>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
+<span class="comment">[конец зашифрованного RSA-ключа]</span>
+XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX <span class="comment">// неизвестно для чего это (в яве тут нули)</span>
+
+
+<hr>
+</a><a name="GGAuth"><h3>GGAuth</h3>
+<b>Формат</b>:
+12 00           <span class="comment">// Длина</span>
+0B              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// GGAuthResponse</span>
+00 00 00 00
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+
+<span class="comment">Замечание: пакет из С4 ява</span>
+
+<hr>
+</a><a name="LoginFail"><h3>LoginFail</h3>
+<b>Формат</b>:
+12 00           <span class="comment">// Длина</span>
+01              <span class="comment">// Тип</span>
+XX              <span class="comment">// причина неудачной авторизации</span>
+00 00 00
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Причина:   0x03 - Password does not match this account.
+           0x07 - The account is already in use. Access denied.
+           0x12 - Your usage term has expired.  Please visit the official Lineage2 website at... 
+
+Замечание: в байтах 5-10, и последних четырех - часто попадается мусор...</span>
+
+<hr>
+</a><a name="LoginOk"><h3>LoginOk</h3>
+<b>Формат</b>:
+32 00           <span class="comment">// Длина</span>
+03              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// SessionKey1_FistPart</span>
+XX XX XX XX     <span class="comment">// SessionKey1_SecondPart</span>
+00 00 00 00
+00 00 00 00
+01 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Замечание: в байтах 40-42, и последних четырех - часто попадается мусор...</span>
+
+<hr>
+</a><a name="ServerList"><h3>ServerList</h3>
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+04              <span class="comment">// Тип</span>
+XX              <span class="comment">// Количество серверов</span>
+XX              <span class="comment">// {номер LS}</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX              <span class="comment">// ID сервера</span>
+XX XX XX XX     <span class="comment">// IP-аддресс GS</span>
+XX XX XX XX     <span class="comment">// Port GS</span>
+XX              <span class="comment">// возрастной лимит</span>
+XX              <span class="comment">// PVP сервер: 1-да, 0 - нет</span>
+XX XX           <span class="comment">// Количество игроков онлайн</span>
+XX XX           <span class="comment">// Максимальное количество игроков</span>
+XX              <span class="comment">// Статус сервера: 1-UP, 0-DOWN</span>
+XX XX XX XX     <span class="comment">// {Статус сервера}</span>
+XX              <span class="comment">// {Статус сервера}</span>
+<span class="comment">[конец повторяющегося блока]</span>
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Замечание: в последних 4 байтах и 2 байтах перед чексуммой - часто попадается мусор...</span>
+
+<hr>
+</a><a name="PlayFail"><h3>PlayFail</h3>
+<b>Формат</b>:
+12 00           <span class="comment">// Длина</span>
+06              <span class="comment">// Тип</span>
+XX              <span class="comment">// Причина</span>
+00 00 00
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Причина: { 0x08 - Access failed.  Please try again later... }
+Замечание: в байтах 5-10, и последних четырех - часто попадается мусор...</span>
+
+<hr>
+</a><a name="PlayOk"><h3>PlayOk</h3>
+<b>Формат</b>:
+1A 00           <span class="comment">// Длина</span>
+07              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// SessionKey2_FistPart</span>
+XX XX XX XX     <span class="comment">// SessionKey2_SecondPart</span>
+01 00 00 00
+00 00 00
+XX XX XX XX     <span class="comment">// чексумма</span>
+00 00 00 00
+
+<span class="comment">Замечание: в байтах 13-18, и последних четырех - часто попадается мусор...</span>
+
+<hr>
+</a></pre><a name="PlayOk">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br>
+</a><pre><a name="PlayOk"></a><a name="CltoGS"><h2>4. Пакеты Client -&gt; Game Server</h2>
+</a><a href="http://www.la2kings.ru/la2bot/packets.html#MoveBackwardToLocation">01 - MoveBackwardToLocation</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#ProtocolVersion">00 - ProtocolVersion</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#EnterWorld">03 - EnterWorld</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestAuthLogin">08 - RequestAuthLogin</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreate">0B - CharacterCreate</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDelete">0C - CharacterDelete</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelected_OUT">0D - CharacterSelected</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#NewCharacter">0E - NewCharacter</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestItemList">0F - RequestItemList</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestUnEquipItem">11 - RequestUnEquipItem</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#UseItem">14 - UseItem</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#Say2_OUT">38 - Say2</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#ValidatePosition">48 - ValidatePosition</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterRestore">62 - CharacterRestore</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestQuestList">63 - RequestQuestList</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestPrivateStoreManage">73 - RequestPrivateStoreManage</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#NetPingOut">A8 - NetPing</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RequestManorList">D008 - RequestManorList</a>
+
+<hr>
+<a name="ProtocolVersion"><h3>ProtocolVersion</h3>
+<b>Формат</b>:
+07 01           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// ProtocolVersion
+[далее идет массив-константа, который хз от чего зависит, у меня он такой:]</span>
+09 07 54 56 03 09 0B 01 07 02 54 54 56 07 00 02
+55 56 00 51 00 53 57 04 07 55 08 54 01 07 01 53
+00 56 55 56 01 06 05 04 51 03 08 51 08 51 56 04
+54 06 55 08 02 09 51 56 01 53 06 55 04 53 00 56
+56 53 01 09 02 09 01 51 54 51 09 55 56 09 03 04
+07 05 55 04 06 55 04 06 09 04 51 01 08 08 06 05
+52 06 04 01 07 54 03 06 52 55 06 55 55 51 01 02
+04 54 03 55 54 01 57 51 55 05 52 05 54 07 51 51
+55 07 02 53 53 00 52 05 52 07 01 54 00 03 05 05
+08 06 05 05 06 03 00 0D 08 01 07 09 03 51 03 07
+53 09 51 06 07 54 0A 50 56 02 52 04 05 55 51 02
+53 00 08 54 04 52 56 06 02 09 00 08 03 53 56 01
+05 00 55 06 08 56 04 0D 06 07 52 06 07 04 0A 06
+01 04 54 04 00 05 02 04 54 00 09 52 53 05 04 01
+04 05 05 01 52 51 52 0D 06 51 08 09 54 53 00 0D
+01 02 03 54 53 01 05 03 08 56 54 07 02 54 0B 06
+
+<span class="comment">Др.названия: VersionCheck, SendProtocolVersion
+Замечание: кто знает, от чего зависит этот "массив-константа", плз напишите мне на мыло: <img width="101" height="11" src="./Lineage II Packets updated_files/x.gif" border="0" hspace="0" vspace="0" style="position:relative; top:2px"></span>
+
+<hr>
+</a><a name="RequestAuthLogin"><h3>RequestAuthLogin</h3>
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+08              <span class="comment">// Тип</span>
+XX XX ... 00 00 <span class="comment">// Login (Unicode строка)</span>
+XX XX XX XX     <span class="comment">// SessionKey2_SecondPart</span>
+XX XX XX XX     <span class="comment">// SessionKey2_FistPart</span>
+XX XX XX XX     <span class="comment">// SessionKey1_FistPart</span>
+XX XX XX XX     <span class="comment">// SessionKey1_SecondPart</span>
+01 00 00 00
+
+<span class="comment">Др.названия: AuthLogin</span>
+
+<hr>
+</a><a name="CharacterSelected_OUT"><h3>CharacterSelected</h3>
+<b>Формат</b>:
+15 00           <span class="comment">// Длина</span>
+0D              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Номер чара</span>
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 
+
+<hr>
+</a><a name="RequestManorList"><h3>RequestManorList</h3>
+<b>Формат</b>:
+05 00           <span class="comment">// Длина</span>
+D0              <span class="comment">// Тип</span>
+08 00           <span class="comment">// Подтип</span>
+
+<hr>
+</a><a name="RequestQuestList"><h3>RequestQuestList</h3>
+<b>Формат</b>:
+03 00           <span class="comment">// Длина</span>
+63              <span class="comment">// Тип</span>
+
+<hr>
+</a><a name="EnterWorld"><h3>EnterWorld</h3>
+<b>Формат</b>:
+13 00           <span class="comment">// Длина</span>
+03              <span class="comment">// Тип</span>
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+
+<hr>
+</a><a name="NetPingOut"><h3>NetPing</h3>
+<b>Формат</b>:
+0F 00           <span class="comment">// Длина</span>
+A8              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// {ID пинга}, из пакета </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#NetPing">NetPing</a>
+XX XX XX XX     <span class="comment">// Пинг</span>
+00 08 00 00
+
+<hr>
+<a name="NewCharacter"><h3>NewCharacter</h3>
+<b>Формат</b>:
+03 00           <span class="comment">// Длина</span>
+0E              <span class="comment">// Тип</span>
+
+<hr>
+</a><a name="CharacterCreate"><h3>CharacterCreate</h3>
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+0B              <span class="comment">// Тип</span>
+XX XX ... 00 00 <span class="comment">// Имя создаваемого чара (Unicode строка)</span>
+XX XX XX XX     <span class="comment">// Race</span>
+XX XX XX XX     <span class="comment">// Sex</span>
+XX XX XX XX     <span class="comment">// ClassID</span>
+XX XX XX XX     <span class="comment">// INT</span>
+XX XX XX XX     <span class="comment">// STR</span>
+XX XX XX XX     <span class="comment">// CON</span>
+XX XX XX XX     <span class="comment">// MEN</span>
+XX XX XX XX     <span class="comment">// DEX</span>
+XX XX XX XX     <span class="comment">// WIT</span>
+XX XX XX XX     <span class="comment">// HairStyle</span>
+XX XX XX XX     <span class="comment">// HairColor</span>
+XX XX XX XX     <span class="comment">// Face
+
+Замечание: STR,DEX,CON,INT,WIT,MEN - это базовые статы выбранного класса, знаем мы их из пакета </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#NewCharacterSuccess">NewCharacterSuccess</a>
+(но на самом деле, сервер их игнорирует!)
+
+<hr>
+<a name="CharacterDelete"><h3>CharacterDelete</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+0C              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Номер чара</span>
+
+<hr>
+</a><a name="CharacterRestore"><h3>CharacterRestore</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+62              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Номер чара</span>
+
+<hr>
+</a><a name="Say2_OUT"><h3>Say2</h3>
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+38              <span class="comment">// Тип</span>
+XX XX ... 00 00 <span class="comment">// Отправляемое сообщение (Unicode строка)</span>
+XX XX XX XX     <span class="comment">// Тип сообщения (аналогичен </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#Say2">Say2</a>)
+XX XX ... 00 00 <span class="comment">// Имя получателя (Unicode строка)
+
+Замечание: Имя получателя - присутсвует только если "Тип сообщения" = 2 (т.е. только если это приватное сообщение!)</span>
+
+<hr>
+<a name="RequestItemList"><h3>RequestItemList</h3>
+<b>Формат</b>:
+03 00           <span class="comment">// Длина</span>
+0F              <span class="comment">// Тип</span>
+
+<hr>
+</a><a name="UseItem"><h3>UseItem</h3>
+<b>Формат</b>:
+0B 00           <span class="comment">// Длина</span>
+14              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// ObjectID</span>
+00 00 00 00
+
+<hr>
+</a><a name="RequestUnEquipItem"><h3>RequestUnEquipItem</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+11              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// BodyPart: 1 - Under
+                             2 - REar
+                             4 - LEar
+                             8 - Neck
+                            16 - RFinger
+                            32 - LFinger
+                            64 - Head
+                           128 - RHand
+                           256 - LHand
+                           512 - Gloves
+                          1024 - Chest
+                          2048 - Legs
+                          4096 - Feet
+                          8192 - Back
+                          16384- LRHand
+                          32768- Hair</span>
+
+<hr>
+</a><a name="MoveBackwardToLocation"><h3>MoveBackwardToLocation</h3>
+<b>Формат</b>:
+1F 00           <span class="comment">// Длина</span>
+01              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// DestX</span>
+XX XX XX XX     <span class="comment">// DestY</span>
+XX XX XX XX     <span class="comment">// DestZ</span>
+XX XX XX XX     <span class="comment">// CurX</span>
+XX XX XX XX     <span class="comment">// CurY</span>
+XX XX XX XX     <span class="comment">// CurZ</span>
+XX XX XX XX     <span class="comment">// Для передвижения используем клаву или мышь? (0-клава 1-мышь)</span>
+
+<hr>
+</a><a name="ValidatePosition"><h3>ValidatePosition</h3>
+<b>Формат</b>:
+17 00           <span class="comment">// Длина</span>
+48              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// CurX</span>
+XX XX XX XX     <span class="comment">// CurY</span>
+XX XX XX XX     <span class="comment">// CurZ</span>
+XX XX XX XX     <span class="comment">// Heading</span>
+00 00 00 00     <span class="comment">// ???</span>
+
+<hr>
+</a><a name="RequestPrivateStoreManage"><h3>RequestPrivateStoreManage</h3>
+<b>Формат</b>:
+03 00           <span class="comment">// Длина</span>
+73              <span class="comment">// Тип</span>
+
+<span class="comment">Др.названия: RequestPrivateStoreManageSell, TradeRequest</span>
+
+<hr>
+</a></pre><a name="RequestPrivateStoreManage">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br>
+</a><pre><a name="RequestPrivateStoreManage"></a><a name="GStoCl"><h2>5. Пакеты Game Server -&gt; Client</h2>
+</a><a href="http://www.la2kings.ru/la2bot/packets.html#FirstKey">00 - FirstKey</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#MoveToLocation">01 - MoveToLocation</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharInfo">03 - CharInfo</a> <font color="red">&#9689;</font>
+<a href="http://www.la2kings.ru/la2bot/packets.html#UserInfo">04 - UserInfo</a> <font color="red">&#9689;</font>
+<a href="http://www.la2kings.ru/la2bot/packets.html#SpawnItem">0B - SpawnItem</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#DropItem">0C - DropItem</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#DeleteObject">12 - DeleteObject</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelectionInfo">13 - CharacterSelectionInfo</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterSelected">15 - CharacterSelected</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#NpcInfo">16 - NpcInfo</a> <font color="red">&#9689;</font>
+<a href="http://www.la2kings.ru/la2bot/packets.html#NewCharacterSuccess">17 - NewCharacterSuccess</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreateSuccess">19 - CharacterCreateSuccess</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterCreateFail">1A - CharacterCreateFail</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#ItemList">1B - ItemList</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDeleteSuccess">23 - CharacterDeleteSuccess</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#CharacterDeleteFail">24 - CharacterDeleteFail</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#InventoryUpdate">27 - InventoryUpdate</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#Say2">4A - Say2</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#QuestList">80 - QuestList</a> <font color="red">&#9689;</font>
+<a href="http://www.la2kings.ru/la2bot/packets.html#PrivateStoreMsg">9C - PrivateStoreMsg</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#PrivateStoreMsgBuy">B9 - PrivateStoreMsgBuy</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#NetPing">D3 - NetPing</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#RecipeShopMsg">DB - RecipeShopMsg</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#SSQInfo">F8 - SSQInfo</a>
+<a href="http://www.la2kings.ru/la2bot/packets.html#ExSendManorList">FE1B - ExSendManorList</a>
+
+<hr>
+<a name="FirstKey"><h3>FirstKey</h3>
+<b>Формат</b>:
+10 00           <span class="comment">// Длина</span>
+00              <span class="comment">// Тип</span>
+XX              <span class="comment">// Неизвестно</span>
+XX XX XX XX     <span class="comment">// XorKey_FistPart</span>
+01 00 00 00 
+01 00 00 00
+
+<span class="comment">Др.названия: KeyPacket, XorKey</span>
+
+<hr>
+</a><a name="CharacterSelectionInfo"><h3>CharacterSelectionInfo</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+13               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// количество чаров</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX XX ... 00 00  <span class="comment">// Name (Unicode строка)</span>
+XX XX XX XX      <span class="comment">// Char ID</span>
+XX XX ... 00 00  <span class="comment">// Login (Unicode строка)</span>
+XX XX XX XX      <span class="comment">// Session ID</span>
+XX XX XX XX      <span class="comment">// Clan ID</span>
+00 00 00 00
+XX XX XX XX      <span class="comment">// Sex</span>
+XX XX XX XX      <span class="comment">// Race</span>
+XX XX XX XX      <span class="comment">// BaseClass ID</span>
+01 00 00 00
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// HP (вещественный тип - Double)</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// MP (вещественный тип - Double)</span>
+XX XX XX XX      <span class="comment">// SP</span>
+XX XX XX XX      <span class="comment">// EXP</span>
+XX XX XX XX      <span class="comment">// lvl</span>
+XX XX XX XX      <span class="comment">// Karma</span>
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+XX XX XX XX      <span class="comment">// ItemObjectID Under</span>
+XX XX XX XX      <span class="comment">// ItemObjectID REar</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LEar</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Neck</span>
+XX XX XX XX      <span class="comment">// ItemObjectID RFinger</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LFinger</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Head</span>
+XX XX XX XX      <span class="comment">// ItemObjectID RHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Gloves</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Chest</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Legs</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Feet</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Back</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LRHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Hair</span>
+XX XX XX XX      <span class="comment">// ItemID Under</span>
+XX XX XX XX      <span class="comment">// ItemID REar</span>
+XX XX XX XX      <span class="comment">// ItemID LEar</span>
+XX XX XX XX      <span class="comment">// ItemID Neck</span>
+XX XX XX XX      <span class="comment">// ItemID RFinger</span>
+XX XX XX XX      <span class="comment">// ItemID LFinger</span>
+XX XX XX XX      <span class="comment">// ItemID Head</span>
+XX XX XX XX      <span class="comment">// ItemID RHand</span>
+XX XX XX XX      <span class="comment">// ItemID LHand</span>
+XX XX XX XX      <span class="comment">// ItemID Gloves</span>
+XX XX XX XX      <span class="comment">// ItemID Chest</span>
+XX XX XX XX      <span class="comment">// ItemID Legs</span>
+XX XX XX XX      <span class="comment">// ItemID Feet</span>
+XX XX XX XX      <span class="comment">// ItemID Back</span>
+XX XX XX XX      <span class="comment">// ItemID LRHand</span>
+XX XX XX XX      <span class="comment">// ItemID Hair</span>
+XX XX XX XX      <span class="comment">// HairStyle</span>
+XX XX XX XX      <span class="comment">// HairColor</span>
+XX XX XX XX      <span class="comment">// Face</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// MaxHP (вещественный тип - Double)</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// MaxMP (вещественный тип - Double)</span>
+XX XX XX XX      <span class="comment">// Delete (количество секунд до удаления)</span>
+XX XX XX XX      <span class="comment">// Class ID</span>
+XX XX XX XX      <span class="comment">// Last Used? (for auto-select char)</span>
+XX               <span class="comment">// Enchant Effect (на сколько заточенна пушка)</span>
+<span class="comment">[конец повторяющегося блока]</span>
+
+<span class="comment">Др.названия: CharSelectInfo</span>
+
+<hr>
+</a><a name="SSQInfo"><h3>SSQInfo</h3>
+<b>Формат</b>:
+05 00           <span class="comment">// Длина</span>
+F8              <span class="comment">// Тип</span>
+XX XX           <span class="comment">// кто победил в Seven Signs:
+                    258: Dawn
+                    257: Dusk
+                    { 256: None }</span>
+
+<span class="comment">Др.названия: SignsSky</span>
+
+<hr>
+</a><a name="CharacterSelected"><h3>CharacterSelected</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+15               <span class="comment">// Тип</span>
+XX XX ... 00 00  <span class="comment">// CharName (Unicode строка)</span>
+XX XX XX XX      <span class="comment">// Char ID</span>
+XX XX ... 00 00  <span class="comment">// { Title (Unicode строка) }</span>
+XX XX XX XX      <span class="comment">// Session ID</span>
+XX XX XX XX      <span class="comment">// Clan ID</span>
+00 00 00 00
+XX XX XX XX      <span class="comment">// Sex</span>
+XX XX XX XX      <span class="comment">// Race</span>
+XX XX XX XX      <span class="comment">// { Class ID }</span>
+01 00 00 00
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// HP (вещественный тип - Double)</span>
+XX XX XX XX XX XX XX XX  <span class="comment">// MP (вещественный тип - Double)</span>
+XX XX XX XX      <span class="comment">// SP</span>
+XX XX XX XX      <span class="comment">// EXP</span>
+XX XX XX XX      <span class="comment">// lvl</span>
+XX XX XX XX      <span class="comment">// Karma</span>
+00 00 00 00
+XX XX XX XX      <span class="comment">// STR</span>
+XX XX XX XX      <span class="comment">// DEX</span>
+XX XX XX XX      <span class="comment">// CON</span>
+XX XX XX XX      <span class="comment">// INT</span>
+XX XX XX XX      <span class="comment">// WIT</span>
+XX XX XX XX      <span class="comment">// MEN</span>
+<span class="comment">[дальше идет муть какаято, в которой я так и не разобрался (зависит от ProtocolVersion)]</span>
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+XX XX 00 00      <span class="comment">// { in-game time??? }</span>
+00 00 00 00
+XX 00 00 00      <span class="comment">// неизвестно</span>
+00 00 00 00
+00 00 00 00
+00 00 00 00
+00 00 00 00
+
+<span class="comment">Др.названия: CharSelected</span>
+
+<hr>
+</a><a name="ExSendManorList"><h3>ExSendManorList</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+FE               <span class="comment">// Тип</span>
+1B 00            <span class="comment">// Подтип</span>
+XX XX XX XX      <span class="comment">// количество территорий, где можно манорить</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX XX XX XX      <span class="comment">// номер</span>
+XX XX ... 00 00  <span class="comment">// имя территории (Unicode строка)</span>
+<span class="comment">[конец повторяющегося блока]</span>
+
+<hr>
+</a><a name="QuestList"><h3>QuestList</h3>
+!!! этот пакет не доделан!!!
+
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+80              <span class="comment">// Тип</span>
+XX XX           <span class="comment">// Количество незавершенных квестов</span>
+<span class="comment">[начало повторяющегося блока 1]</span>
+XX XX XX XX      <span class="comment">// Quest ID</span>
+XX XX XX XX      <span class="comment">// Stage of quest progress</span>
+<span class="comment">[конец повторяющегося блока 1]</span>
+XX XX           <span class="comment">// {Количество какихто итемов}</span>
+<span class="comment">[начало повторяющегося блока 2]</span>
+XX XX XX XX      <span class="comment">// dropItemObjID</span>
+XX XX XX XX      <span class="comment">// dropItemID</span>
+XX XX XX XX      <span class="comment">// dropItemCount</span>
+XX XX XX XX      <span class="comment">// неизвестно</span>
+<span class="comment">[конец повторяющегося блока 2]</span>
+
+
+!!! этот пакет не доделан!!!
+
+<hr>
+</a><a name="NetPing"><h3>NetPing</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+D3              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// {ID пинга}</span>
+
+<hr>
+</a><a name="NewCharacterSuccess"><h3>NewCharacterSuccess</h3>
+<b>Формат</b>:
+XX XX           <span class="comment">// Длина</span>
+17              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Количество базовых классов в игре</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX XX XX XX      <span class="comment">// расса</span>
+XX XX XX XX      <span class="comment">// класс</span>
+46 00 00 00
+XX XX XX XX      <span class="comment">// STR</span>
+0a 00 00 00
+46 00 00 00
+XX XX XX XX      <span class="comment">// DEX</span>
+0a 00 00 00
+46 00 00 00
+XX XX XX XX      <span class="comment">// CON</span>
+0a 00 00 00
+46 00 00 00
+XX XX XX XX      <span class="comment">// INT</span>
+0a 00 00 00
+46 00 00 00
+XX XX XX XX      <span class="comment">// WIT</span>
+0a 00 00 00
+46 00 00 00
+XX XX XX XX      <span class="comment">// MEN</span>
+0a 00 00 00
+<span class="comment">[конец повторяющегося блока]</span>
+
+<span class="comment">Др.названия: CharTemplates</span>
+
+<hr>
+</a><a name="CharacterCreateSuccess"><h3>CharacterCreateSuccess</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+19              <span class="comment">// Тип</span>
+01 00 00 00
+
+<span class="comment">Др.названия: CharCreateOk</span>
+
+<hr>
+</a><a name="CharacterCreateFail"><h3>CharacterCreateFail</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+1A              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Причина: 0x02 - Name already exists.</span>
+
+<span class="comment">Др.названия: CharCreateFail</span>
+
+<hr>
+</a><a name="CharacterDeleteSuccess"><h3>CharacterDeleteSuccess</h3>
+<b>Формат</b>:
+03 00           <span class="comment">// Длина</span>
+23              <span class="comment">// Тип</span>
+
+<span class="comment">Др.названия: CharDeleteOk</span>
+
+<hr>
+</a><a name="CharacterDeleteFail"><h3>CharacterDeleteFail</h3>
+<b>Формат</b>:
+07 00           <span class="comment">// Длина</span>
+24              <span class="comment">// Тип</span>
+XX XX XX XX     <span class="comment">// Причина</span>
+
+<span class="comment">Др.названия: CharDeleteFail</span>
+
+<hr>
+</a><a name="UserInfo"><h3>UserInfo</h3>
+!!! этот пакет не доделан!!!
+
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+04               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+00 00 00 00
+XX XX XX XX      <span class="comment">// ObjectId</span>
+XX XX ... 00 00  <span class="comment">// Name (Unicode строка)</span>
+XX XX XX XX      <span class="comment">// Race</span>
+XX XX XX XX      <span class="comment">// Sex</span>
+XX XX XX XX      <span class="comment">// ClassId</span>
+XX XX XX XX      <span class="comment">// lvl</span>
+XX XX XX XX      <span class="comment">// Exp</span>
+XX XX XX XX      <span class="comment">// STR</span>
+XX XX XX XX      <span class="comment">// DEX</span>
+XX XX XX XX      <span class="comment">// CON</span>
+XX XX XX XX      <span class="comment">// INT</span>
+XX XX XX XX      <span class="comment">// WIT</span>
+XX XX XX XX      <span class="comment">// MEN</span>
+XX XX XX XX      <span class="comment">// MaxHP</span>
+XX XX XX XX      <span class="comment">// CurrentHP</span>
+XX XX XX XX      <span class="comment">// MaxMP</span>
+XX XX XX XX      <span class="comment">// CurrentMP</span>
+XX XX XX XX      <span class="comment">// SP</span>
+XX XX XX XX      <span class="comment">// CurrentLoad</span>
+XX XX XX XX      <span class="comment">// MaxLoad</span>
+28 00 00 00
+XX XX XX XX      <span class="comment">// ItemObjectID Under</span>
+XX XX XX XX      <span class="comment">// ItemObjectID REar</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LEar</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Neck</span>
+XX XX XX XX      <span class="comment">// ItemObjectID RFinger</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LFinger</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Head</span>
+XX XX XX XX      <span class="comment">// ItemObjectID RHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Gloves</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Chest</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Legs</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Feet</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Back</span>
+XX XX XX XX      <span class="comment">// ItemObjectID LRHand</span>
+XX XX XX XX      <span class="comment">// ItemObjectID Hair</span>
+XX XX XX XX      <span class="comment">// ItemID Under</span>
+XX XX XX XX      <span class="comment">// ItemID REar</span>
+XX XX XX XX      <span class="comment">// ItemID LEar</span>
+XX XX XX XX      <span class="comment">// ItemID Neck</span>
+XX XX XX XX      <span class="comment">// ItemID RFinger</span>
+XX XX XX XX      <span class="comment">// ItemID LFinger</span>
+XX XX XX XX      <span class="comment">// ItemID Head</span>
+XX XX XX XX      <span class="comment">// ItemID RHand</span>
+XX XX XX XX      <span class="comment">// ItemID LHand</span>
+XX XX XX XX      <span class="comment">// ItemID Gloves</span>
+XX XX XX XX      <span class="comment">// ItemID Chest</span>
+XX XX XX XX      <span class="comment">// ItemID Legs</span>
+XX XX XX XX      <span class="comment">// ItemID Feet</span>
+XX XX XX XX      <span class="comment">// ItemID Back</span>
+XX XX XX XX      <span class="comment">// ItemID LRHand</span>
+XX XX XX XX      <span class="comment">// ItemID Hair</span>
+XX XX XX XX      <span class="comment">// P.Atk</span>
+XX XX XX XX      <span class="comment">// P.Atk Speed</span>
+XX XX XX XX      <span class="comment">// P.Def</span>
+XX XX XX XX      <span class="comment">// EvasionRate</span>
+XX XX XX XX      <span class="comment">// Accuracy</span>
+XX XX XX XX      <span class="comment">// CriticalHit</span>
+XX XX XX XX      <span class="comment">// M.Atk</span>
+XX XX XX XX      <span class="comment">// Casting Speed</span>
+XX XX XX XX      <span class="comment">// P.Atk Speed</span>
+XX XX XX XX      <span class="comment">// M.Def</span>
+XX XX XX XX      <span class="comment">// Чар в режиме PvP?</span>
+XX XX XX XX      <span class="comment">// Karma</span>
+<span class="comment">[дальше идет муть, в которой я пока не разобрался]</span>
+?? ?? ... ?? ??
+
+!!! этот пакет не доделан!!!
+
+<hr>
+</a><a name="Say2"><h3>Say2</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+4A               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object Id того чара, от кого это сообщение</span>
+XX XX XX XX      <span class="comment">// Тип сообщения</span>
+XX XX ... 00 00  <span class="comment">// Имя чара, от кого это сообщение (Unicode строка)</span>
+XX XX ... 00 00  <span class="comment">// Само сообщение (Unicode строка)</span>
+
+<span class="comment">Тип сообщения: 0x00 - General
+               0x01 - Shout
+               0x02 - Whisper
+               0x03 - Party
+               0x04 - Clan
+               0x08 - Trade
+               0x09 - Alliance
+               0x0A - Announcement
+
+Др.названия: CreatureSay</span>
+
+<hr>
+</a><a name="NpcInfo"><h3>NpcInfo</h3>
+!!! этот пакет не доделан!!!
+
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+16               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object Id</span>
+XX XX XX XX      <span class="comment">// NpcTypeId (NpcID + 1000000)</span>
+XX XX XX XX      <span class="comment">// Можно ли атаковать этого NPC?</span>
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX      <span class="comment">// Heading (угол относительно вида сверху, перевод_в_градусы=Heading/65536*360)</span>
+<span class="comment">[дальше идет муть, в которой я пока не разобрался]</span>
+?? ?? ... ?? ??
+
+!!! этот пакет не доделан!!!
+
+<hr>
+</a><a name="MoveToLocation"><h3>MoveToLocation</h3>
+<b>Формат</b>:
+1F 00            <span class="comment">// Длина</span>
+01               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object Id</span>
+XX XX XX XX      <span class="comment">// DestX</span>
+XX XX XX XX      <span class="comment">// DestY</span>
+XX XX XX XX      <span class="comment">// DestZ</span>
+XX XX XX XX      <span class="comment">// CurX</span>
+XX XX XX XX      <span class="comment">// CurY</span>
+XX XX XX XX      <span class="comment">// CurZ</span>
+
+<span class="comment">Замечание: Dest - в какую точку движется объект, Cur - текущее положение объекта
+Обратите внимание, что клиент сам определяет положение объекта пока тот движется между этими двумя точками.
+(надеюсь все помнят: Расстояние = Скорость * Время)</span>
+
+<hr>
+</a><a name="CharInfo"><h3>CharInfo</h3>
+!!! этот пакет не доделан!!!
+
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+03               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX      <span class="comment">// Heading (угол относительно вида сверху, перевод_в_градусы=Heading/65536*360)</span>
+XX XX XX XX      <span class="comment">// ObjectID</span>
+XX XX ... 00 00  <span class="comment">// Name (Unicode строка)</span>
+XX XX XX XX      <span class="comment">// Race</span>
+XX XX XX XX      <span class="comment">// Sex</span>
+XX XX XX XX      <span class="comment">// Class ID</span>
+
+XX XX XX XX      <span class="comment">// </span>
+XX XX XX XX      <span class="comment">// </span>
+
+
+
+<span class="comment">[дальше идет муть, в которой я пока не разобрался]</span>
+?? ?? ... ?? ??
+
+!!! этот пакет не доделан!!!
+
+<hr>
+</a><a name="DeleteObject"><h3>DeleteObject</h3>
+<b>Формат</b>:
+0B 00            <span class="comment">// Длина</span>
+12               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object Id</span>
+00 00 00 00
+
+<hr>
+</a><a name="SpawnItem"><h3>SpawnItem</h3>
+<b>Формат</b>:
+23 00            <span class="comment">// Длина</span>
+0B               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object ID</span>
+XX XX XX XX      <span class="comment">// Item ID</span>
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX      <span class="comment">// Stackable</span>
+XX XX XX XX      <span class="comment">// Count</span>
+00 00 00 00
+
+<hr>
+</a><a name="ItemList"><h3>ItemList</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+1B               <span class="comment">// Тип</span>
+XX XX            <span class="comment">// ShowWindow (Надо открыть окно инвентаря?)</span>
+XX XX            <span class="comment">// ItemCount</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX XX            <span class="comment">// ItemType1</span>
+XX XX XX XX      <span class="comment">// ObjectID</span>
+XX XX XX XX      <span class="comment">// ItemID</span>
+XX XX XX XX      <span class="comment">// Count</span>
+XX XX            <span class="comment">// ItemType2</span>
+XX XX            <span class="comment">// ???</span>
+XX XX            <span class="comment">// isEquipped (1-да, 0-нет)</span>
+XX XX XX XX      <span class="comment">// BodyPart (параметр бесполезен - не различает положение R/L бижи)</span>
+XX XX            <span class="comment">// EnchantLevel</span>
+XX XX            <span class="comment">// ???</span>
+<span class="comment">[конец повторяющегося блока]</span>
+<span class="comment">
+ItemType1: 0-Weapon/Earring/Ring/Necklace
+           1-Helmet/Chest/Legs/Boots/Gloves
+           2-Shield
+           4-Item/QuestItem/Adena
+
+ItemType2: 0-Weapon
+           1-Helmet/Chest/Legs/Boots/Gloves/Shield
+           2-Earring/Ring/Necklace
+           3-QuestItem
+           4-Adena
+           5-Item</span>
+
+<hr>
+</a><a name="DropItem"><h3>DropItem</h3>
+<b>Формат</b>:
+27 00            <span class="comment">// Длина</span>
+0C               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// Object ID того, кто дропнул предмет (игрок/Npc)</span>
+XX XX XX XX      <span class="comment">// Object ID предмета</span>
+XX XX XX XX      <span class="comment">// Item ID</span>
+XX XX XX XX      <span class="comment">// X</span>
+XX XX XX XX      <span class="comment">// Y</span>
+XX XX XX XX      <span class="comment">// Z</span>
+XX XX XX XX      <span class="comment">// Stackable</span>
+XX XX XX XX      <span class="comment">// Count</span>
+00 00 00 00
+
+<hr>
+</a><a name="PrivateStoreMsgBuy"><h3>PrivateStoreMsgBuy</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+B9               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// ObjectID торговца</span>
+XX XX ... 00 00  <span class="comment">// StoreMsg (Unicode строка)
+
+Др.названия: PrivateStoreBuyMsg</span>
+
+<hr>
+</a><a name="PrivateStoreMsg"><h3>PrivateStoreMsg</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+9C               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// ObjectID торговца</span>
+XX XX ... 00 00  <span class="comment">// StoreMsg (Unicode строка)
+
+Др.названия: PrivateStoreMsgSell</span>
+
+<hr>
+</a><a name="RecipeShopMsg"><h3>RecipeShopMsg</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+DB               <span class="comment">// Тип</span>
+XX XX XX XX      <span class="comment">// ObjectID торговца</span>
+XX XX ... 00 00  <span class="comment">// StoreMsg (Unicode строка)</span>
+
+<hr>
+</a><a name="InventoryUpdate"><h3>InventoryUpdate</h3>
+<b>Формат</b>:
+XX XX            <span class="comment">// Длина</span>
+27               <span class="comment">// Тип</span>
+XX XX            <span class="comment">// ItemCount</span>
+<span class="comment">[начало повторяющегося блока]</span>
+XX XX            <span class="comment">// Update type (1-add, 2-modify, 3-remove)</span>
+XX XX            <span class="comment">// ItemType1</span>
+XX XX XX XX      <span class="comment">// ObjectID</span>
+XX XX XX XX      <span class="comment">// ItemID</span>
+XX XX XX XX      <span class="comment">// Count</span>
+XX XX            <span class="comment">// ItemType2</span>
+XX XX            <span class="comment">// ???</span>
+XX XX            <span class="comment">// isEquipped (1-да, 0-нет)</span>
+XX XX XX XX      <span class="comment">// BodyPart (параметр бесполезен - не различает положение R/L бижи)</span>
+XX XX            <span class="comment">// EnchantLevel</span>
+XX XX            <span class="comment">// ???</span>
+<span class="comment">[конец повторяющегося блока]</span>
+
+<span class="comment">Замечание: ItemType1, ItemType2 - аналогично </span></a><a href="http://www.la2kings.ru/la2bot/packets.html#ItemList">ItemList</a>
+
+<hr>
+
+</pre>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<br><br><br><br><br><br><br><br><br>
+<span class="comment">Сервер, на котором проводились исследования:<br>
+1) ПТС C4 сервер<br>
+2) RSA - нету<br>
+3) GG - нету (убит)<br>
+4) антиботы - никаких<br>
+5) ProtocolVersion=656<br>
+6) данные которые идут в пакете ProtocolVersion указанны <a href="http://www.la2kings.ru/la2bot/packets.html#ProtocolVersion">тут</a>.<br>
+7) Protocol=30810 (в пакете <a href="http://www.la2kings.ru/la2bot/packets.html#Init">Init</a>)<br>
+<br>
+Все, что находится в фигурных скобках {} - это те данные, в которых я частично или полностью не уверен! Осторожнее!</span><br><br>
+<br>
+<center>Copyright (C) 2007 La2Kings (KyberPrizrak)<br>Копирование материала без ссылок на эту страницу, ЗАПРЕЩАЕТСЯ!</center>
+</tt>
+<a name="bottom">
+
+
+</a></body></html>

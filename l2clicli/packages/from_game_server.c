@@ -312,6 +312,67 @@ char* decodeGameSkillList(Binreader* pkg){
 	return result;
 }
 
+char* decodeGameTeleportToLocation(Binreader* pkg){
+	int objId = readInt(pkg), x = readInt(pkg), y = readInt(pkg), z = readInt(pkg);
+	return formatToString(
+		"{\"type\":\"TeleportToLocation\",\"objId\":%i,\"x\":%i,\"y\":%i,\"z\":%i}",
+		objId, x, y, z
+	);
+}
+
+char* decodeGameObjectMovement(Binreader* pkg){
+	int objId = readInt(pkg), x = readInt(pkg), y = readInt(pkg), z = readInt(pkg); // one more int, dunno what it does
+	return formatToString(
+		"{\"type\":\"ObjectMovement\",\"objId\":%i,\"x\":%i,\"y\":%i,\"z\":%i}",
+		objId, x, y, z
+	);
+}
+
+char* decodeGameResurrectAttempt(Binreader* pkg){
+	int id = readInt(pkg); // resurrection ID? is this a thing? seems so
+	pkg->position += 2 * 4; // what are these ints?
+	char* nick = readUtf16InJsonEncoded(pkg);
+	// one more trailing int
+	char* result = formatToString("{\"type\":\"ResurrectAttempt\",\"from\":%s,\"id\":%i}", nick, id);
+	free(nick);
+	return result;
+}
+
+char* decodeGameItemList(Binreader* pkg){
+	short openInventory = readShort(pkg);
+	short itemCount = readShort(pkg);
+
+	char** items = (char**)malloc(sizeof(char*) * itemCount);
+	for(int i = 0; i < itemCount; i++){
+		readShort(pkg); // itemtype1, useless 
+		int objectId = readInt(pkg);
+		int itemId = readInt(pkg);
+		int count = readInt(pkg);
+		readShort(pkg); // itemtype2, useless
+		readShort(pkg); // ???
+		short isEquipped = readShort(pkg);
+		readInt(pkg); // body part (?)
+		short enchantLevel = readShort(pkg);
+		readShort(pkg); // ???
+		items[i] = formatToString(
+			"{\"objId\":%i,\"itemId\":%i,\"equipped\":%s,\"enchantLevel\":%i,\"count\":%i}",
+			objectId, itemId, isEquipped? "true": "false", enchantLevel, count
+		);
+	}
+
+	char* itemArr = joinStrings(items, itemCount, ",");
+	for(int i = 0; i < itemCount; i++)
+		free(items[i]);
+	free(items);
+
+	char* result = formatToString(
+		"{\"type\":\"ItemList\",\"openInventory\":%s,\"items\":[%s]}",
+		openInventory? "true": "false", itemArr
+	);
+	free(itemArr);
+	return result;
+}
+
 
 
 
@@ -324,11 +385,16 @@ char* decodeGameServerPkg(byte* pkgBytes, int length){
 
 	char* result;
 	byte pkgType = readByte(pkg);
+
+	//fprintf(stderr, "DECODE %s\n", binaryToHex(pkgBytes, length));
+	//fflush(stderr);
+
 	switch(pkgType){
 		case 0x00:	result = decodeGameCryptInitPackage(pkg);			break;
 		case 0x01:	result = decodeGameMoveToLocation(pkg);				break;
 		case 0x03:	result = decodeGameCharInfo(pkg);					break;
 		case 0x04:	result = decodeGameUserInfo(pkg);					break;
+		//case 0x06:	result = decodeGameObjectDied(pkg);					break; // first int is definitely objId of dying object
 		case 0x0b:	result = decodeGameSpawnItem(pkg);					break;
 		case 0x0c:	result = decodeGameDropItem(pkg);					break;
 		case 0x0e:	result = decodeGameStatusUpdate(pkg);				break; // sometimes just don't happen
@@ -336,23 +402,26 @@ char* decodeGameServerPkg(byte* pkgBytes, int length){
 		case 0x13:	result = decodeGameCharacterListPackage(pkg);		break;
 		case 0x15:	result = decodeGameCharacterSelectedPackage(pkg);	break;
 		case 0x16:	result = decodeGameNpcInfo(pkg);					break;
-		//case 0x1b:	result = decodeGameItemList(pkg);					break;
+		case 0x1b:	result = decodeGameItemList(pkg);					break;
 		//case 0x21:	result = decodeGameTradeItemAdded(pkg);				break; 
 		case 0x22:	result = decodeGameTradeFinished(pkg);				break;
 		case 0x25:	result = decodeGameActionFail(pkg);					break;
 		case 0x29:	result = decodeGameTargetChanged(pkg);				break;
 		case 0x2a:	result = decodeGameTargetCleared(pkg);				break;
+		case 0x38:	result = decodeGameTeleportToLocation(pkg);			break;
 		case 0x39:	result = decodeGamePartyRequest(pkg);				break;
+		case 0x47:	result = decodeGameObjectMovement(pkg);				break; // why not MoveToLocation? dunno.
 		case 0x4a:	result = decodeGameSay2(pkg);						break;
 		case 0x58:	result = decodeGameSkillList(pkg);					break;
 		case 0x5e:	result = decodeGameTradeRequest(pkg);				break;
-		case 0x64:	result = decodeGameTradeStarted(pkg);				break;// it's not only tradestarted; it has many purposes
-		case 0x7c:	result = decodeGameTradeConfirmed(pkg);				break;
-		case 0xa6:	result = decodeGameActionAcknowledge(pkg);			break;
+		//case 0x64:	result = decodeGameTradeStarted(pkg);				break;// it's not only tradestarted; it has many purposes
+		case 0x7c:	result = decodeGameTradeConfirmed(pkg);				break;// it's also not only tradeconfirmed
+		case 0xa6:	result = decodeGameActionAcknowledge(pkg);			break; // is it TargetChange?
 		//case 0xb9:	result = decodeGamePrivateStoreMsgBuy(pkg);			break;
 		//case 0x9c:	result = decodeGamePrivateStoreMsgSell(pkg);		break;
 		case 0xf8:	result = decodeGameSSQInfoPackage(pkg);				break;
 		case 0xd3:	result = decodeGamePingRequestPackage(pkg);			break;
+		case 0xed:	result = decodeGameResurrectAttempt(pkg);			break;
 		default: 	result = decodeGameUnknownPackage(pkg, pkgType);	break;
 	}
 	

@@ -1,0 +1,16 @@
+{
+  "name": "omnipresence2",
+  "version": "1.0.0",
+  "description": "A tool to simplify management of multiple windows of Lineage II.",
+  "main": "omnipresence.js",
+  "author": "Nartallax",
+  "license": "WTFPL",
+  "dependencies": {
+    "@types/ffi": "^0.2.2",
+    "@types/node": "^11.11.3",
+    "@types/ref": "0.0.28",
+    "ffi": "^2.3.0",
+    "ref": "^1.3.5",
+    "x11": "^2.3.0"
+  }
+}

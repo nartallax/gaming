@@ -11,7 +11,7 @@ hooker - шлюха, dumper - самосвал; so be this util called шмар�
 
 #include <stdio.h>
 #include <unistd.h>
-#include <Windows.h>
+#include <windows.h>
 
 #define KEY_ALT_BITMASK 	0x01
 #define KEY_SHIFT_BITMASK 	0x02

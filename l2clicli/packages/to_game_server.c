@@ -129,6 +129,69 @@ void encodeGameMagicSkillUse(json_value* obj, Binwriter* writer){
 	writeInt(writer, jsonValueByKey(obj, "shift")->u.boolean? 1: 0);
 }
 
+void encodeGameChangeWaitType(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x1d);
+	writeInt(writer, jsonValueByKey(obj, "sit")->u.boolean? 0: 1);
+}
+
+void encodeGameActionUse(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x45);
+	writeInt(writer, jsonValueByKey(obj, "actionId")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "ctrl")->u.boolean? 1: 0);
+	writeByte(writer, jsonValueByKey(obj, "shift")->u.boolean? 1: 0);
+}
+
+void encodeGameCancel(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x37);
+	writeShort(writer, 0);
+}
+
+// TODO: понять, где еще этот пакет используется, и что он вообще значит
+void encodeGameUseSpecialSkill(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0xaa);
+	writeInt(writer, jsonValueByKey(obj, "skillId")->u.integer);
+}
+
+void encodeGameValidatePosition(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x48);
+	writeInt(writer, jsonValueByKey(obj, "x")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "y")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "z")->u.integer);
+	writeInt(writer, jsonValueByKey(obj, "heading")->u.integer);
+	writeInt(writer, 0);
+}
+
+void encodeGameAppearing(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x30);
+}
+
+void encodeGameRequestRestartPoing(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x6d);
+	writeInt(writer, jsonValueByKey(obj, "pointType")->u.integer);
+}
+
+void encodeGameAcceptResurrection(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0xc5);
+	writeInt(writer, jsonValueByKey(obj, "id")->u.integer); // 1510 here
+	writeInt(writer, 1);
+}
+
+void encodeGameEvaluate(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0xb9);
+	writeInt(writer, jsonValueByKey(obj, "objId")->u.integer);
+}
+
+void encodeGameRequestItemList(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x0f);
+}
+
+void encodeGameUseItem(json_value* obj, Binwriter* writer){
+	writeByte(writer, 0x14);
+	writeInt(writer, jsonValueByKey(obj, "objId")->u.integer);
+	writeInt(writer, 0);
+}
+
+
 
 
 
@@ -152,6 +215,17 @@ Binwriter* encodeGameServerPkg(const char* pkgJson){
 	else if(!strcmp(type, "Action"))				encodeGameAction(obj, writer);
 	else if(!strcmp(type, "RequestSkillList"))		encodeGameRequestSkillList(obj, writer);
 	else if(!strcmp(type, "MagicSkillUse"))			encodeGameMagicSkillUse(obj, writer);
+	else if(!strcmp(type, "ChangeWaitType"))		encodeGameChangeWaitType(obj, writer);
+	else if(!strcmp(type, "ActionUse"))				encodeGameActionUse(obj, writer);
+	else if(!strcmp(type, "Cancel"))				encodeGameCancel(obj, writer);
+	else if(!strcmp(type, "UseSpecialSkill"))		encodeGameUseSpecialSkill(obj, writer);
+	else if(!strcmp(type, "ValidatePosition"))		encodeGameValidatePosition(obj, writer);
+	else if(!strcmp(type, "Appearing"))				encodeGameAppearing(obj, writer);
+	else if(!strcmp(type, "RequestRestartPoint"))	encodeGameRequestRestartPoing(obj, writer);
+	else if(!strcmp(type, "AcceptResurrection"))	encodeGameAcceptResurrection(obj, writer);
+	else if(!strcmp(type, "Evaluate"))				encodeGameEvaluate(obj, writer);
+	else if(!strcmp(type, "RequestItemList"))		encodeGameRequestItemList(obj, writer);
+	else if(!strcmp(type, "UseItem"))				encodeGameUseItem(obj, writer);
 
 	else {
 		exitWithError("Unknown game server package type: \"%s\".", type);
