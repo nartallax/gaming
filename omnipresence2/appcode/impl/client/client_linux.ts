@@ -73,7 +73,7 @@ export class GameClientLinux extends GameClientLocal {
 		let optionBackupPath = path.join(path.dirname(cl.path), "Option.ini.backup");
 		if(fs.existsSync(optionBackupPath))
 			fs.copyFileSync(optionBackupPath, path.join(path.dirname(cl.path), "Option.ini"));
-	
+
 		let proc = this.proc = cp.spawn(
 			cl.runner || "wine", 
 			cl.runner? [...(cl.cliArgs || []), "wine", cl.path]: [...(cl.cliArgs || []), cl.path],  
@@ -92,7 +92,7 @@ export class GameClientLinux extends GameClientLocal {
 		})
 
 		this.pid = proc.pid;
-		log("Started proc: " + this.pid);
+		//log("Started proc: " + this.pid);
 
 		(cl.afterStart || []).forEach(_ => {
 			cp.execFile(_.command, (_.args || []).map(x => x === "$PID"? this.pid + "": x), err => {
@@ -120,7 +120,7 @@ export class GameClientLinux extends GameClientLocal {
 
 	private async updateWinId(){
 		this.wwid = await fgwinid.run(this.wineEnvVars);
-		log("WinApi window id = " + this.wwid);
+		//log("WinApi window id = " + this.wwid);
 	}
 
 	private waitClientWindowToOpen(): Promise<number>{
@@ -139,7 +139,7 @@ export class GameClientLinux extends GameClientLocal {
 
 					let warning = wins.find(_ => _.title === "Warning")
 					if(warning){
-						log("Detected warning window.");
+						//log("Detected warning window.");
 						/*
 						await sleep(250);
 						let winId = await fgwinid.run(this.wineEnvVars);
@@ -287,7 +287,7 @@ export class GameClientLinux extends GameClientLocal {
 		await this.mouseMove(x, y);
 		await sleep(250);
 		await this.click();
-		await sleep(250);
+		await sleep(2250);
 
 		// запоминаем цвет характерной кнопки
 		x = (winSize.w / 2) + 30;

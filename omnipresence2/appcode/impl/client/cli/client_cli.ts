@@ -370,16 +370,16 @@ export class GameClientCLI extends GameClientLocal {
 				if(!u)
 					log("Failed to print status: no userinfo recorded.");
 				else
-					log(u.nick + ":" 
-						+ " lvl: " + u.lvl
-						+ ", hp: " + u.hp + " / " + u.hpMax 
-						+ ", mp: " + u.mp + " / " + u.mpMax
-						+ ", shots: " + (!this.itemList || !this.shotIds? []: this.shotIds.map(objId => {
+					log(whitepad(u.nick, 30)
+						+ " lvl: " + whitepad(u.lvl, 2)
+						+ " hp: " + whitepad(u.hp, 5) + " / " + whitepad(u.hpMax, 5)
+						+ " mp: " + whitepad(u.mp, 5) + " / " + whitepad(u.mpMax, 5)
+						+ " shots: " + (!this.itemList || !this.shotIds? []: this.shotIds.map(objId => {
 							let item = (this.itemList as ItemList).items.find(_ => _.objId === objId);
 							if(!item)
 								return null;
 							let itemName = getItemName(item.itemId);
-							return item.count + " x " + itemName
+							return whitepad(item.count, 5) + " x " + itemName
 						}).filter(_ => !!_)).join(", ")
 					);
 				return true;
@@ -407,4 +407,12 @@ export class GameClientCLI extends GameClientLocal {
 	}
 	
 
+}
+
+function whitepad(value: any, n: number): string {
+	let v = value + ""
+	while(v.length < n){
+		v += " ";
+	}
+	return v;
 }

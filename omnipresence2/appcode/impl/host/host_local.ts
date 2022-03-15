@@ -30,8 +30,6 @@ export class LocalHost extends Host<GameClientLocal> {
 							log("Logging in " + client.account.nickname);
 							await client.login();
 						}
-						// мы стартуем активатор только после того, как все клиенты залогинены
-						// это ускоряет процесс загрузки
 						await this.tryStartActivator();
 						log("Done logging in for host " + this.name)
 						return true;

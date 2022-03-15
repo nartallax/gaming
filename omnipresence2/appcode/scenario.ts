@@ -25,15 +25,17 @@ export class ScenarioImpl implements Scenario {
 	charactersFor(type: PartyType): {nick: string, client: string}[]{
 		switch(type){
 			case "test": return [
-				{nick: "SomeRandomTrash4", client: "secondary"},
-				{nick: "SomeRandomTrash5", client: "cli"}
+				{nick: "CarePure", client: "secondary"},
+				{nick: "Murchalquah", client: "secondary"},
+				{nick: "Leidenfrost", client: "secondary"},
+				//{nick: "SomeRandomTrash4", client: "secondary"},
+				//{nick: "SomeRandomTrash5", client: "cli"}
 			]
 			case "rbkillers": return [
 				{nick: "Nart", client: "main"},
-
-				{nick: "CarePure", client: "mundane"},
-				{nick: "Murchalquah", client: "mundane"},
-				{nick: "Leidenfrost", client: "mundane"},
+				{nick: "CarePure", client: "secondary"},
+				{nick: "Murchalquah", client: "secondary"},
+				{nick: "Leidenfrost", client: "secondary"},
 
 				{nick: "GrosseSchlange", 	client: "cli"},
 				{nick: "BOBAHYC", 			client: "cli"},
@@ -203,27 +205,28 @@ export class ScenarioImpl implements Scenario {
 		await mainChar.bringToFront();
 		await mainChar.setupHotkeys({
 			"f1": () => u.seq(nukerPackRR.next(1)[0], _ => _.assist(mainChar), _ => _.useSkill(attackSkill)), // attack
-			"shift+f1": () => toggleContAttackInterval(),
-			"f2": () => drones.forEach(_ => _.target(mainChar)),
-			"shift+f2": () => u.seq(supportRR, _ => _.assist(mainChar), _ => _.useHotkey(9)), // slow
-			"f3": () => u.seq(supportRR, _ => _.target(mainChar), _ => _.useHotkey(1)),
-			"shift+f3": () => u.seq(supportRR, _ => _.assist(mainChar), _ => _.useHotkey(1)),
-			"f4": () => u.seq(rechargeRR, _ => _.target(mainChar), _ => _.useHotkey(2)),
-			"shift+f4": () => u.seq(rechargeRR, _ => _.assist(mainChar), _ => _.useHotkey(2)),
-			"shift+f5": () => nukers.forEach(_ => _.useHotkey(10)), // body-to-mind
-			"shift+f6": () => pp.forEach(_ => _.useHotkey(10)), // berserker spirit assist
+			"shift+f1": () => toggleContAttackInterval(), 										// continious attack
+			"f2": () => drones.forEach(_ => _.target(mainChar)), 								// follow
+			"shift+f2": () => u.seq(supportRR, _ => _.assist(mainChar), _ => _.useHotkey(9)), 	// slow
+			"f3": () => u.seq(supportRR, _ => _.target(mainChar), _ => _.useHotkey(1)),			// heal
+			"shift+f3": () => u.seq(supportRR, _ => _.assist(mainChar), _ => _.useHotkey(1)),	// assist heal
+			"f4": () => u.seq(rechargeRR, _ => _.target(mainChar), _ => _.useHotkey(2)),		// recharge
+			"shift+f4": () => u.seq(rechargeRR, _ => _.assist(mainChar), _ => _.useHotkey(2)),	// assist recharge
+			"shift+f5": () => nukers.forEach(_ => _.useHotkey(10)), 							// body-to-mind
+			"shift+f6": () => pp.forEach(_ => _.useHotkey(10)), 								// berserker spirit assist
 			
-			"f10": () => buffAll(),
-			"shift+f10": () => togglePickupMode(),
-			"f11": () => nonSupportDrones.forEach(_ => _.sitStand()),
-			"shift+f11": () => nonSupportDrones.forEach(_ => _.stand()),
-			"f12": () => supports.forEach(_ => _.sitStand()),
-			"shift+f12": () => supports.forEach(_ => _.stand()),
-			"shift+escape": () => drones.forEach(_ => _.cancelAction()),
+			"f10": () => buffAll(),																// buff
+			"shift+f10": () => togglePickupMode(),												// pickup
+			"f11": () => nonSupportDrones.forEach(_ => _.sitStand()),							// sitstand nonsupport
+			"shift+f11": () => nonSupportDrones.forEach(_ => _.stand()),						// stand nonsupport
+			"f12": () => supports.forEach(_ => _.sitStand()),									// sitstand support
+			"shift+f12": () => supports.forEach(_ => _.stand()),								// stand support
+			"shift+escape": () => drones.forEach(_ => _.cancelAction()),						// cancel all
 		});
 
 		await party();
 		await mainChar.bringToFront();
+		log("Everything is up and running.");
 	}
 
 }
